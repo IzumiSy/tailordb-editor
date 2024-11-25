@@ -1,12 +1,13 @@
 "use client";
 import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
 import { TailorDBTable } from "@/components/table";
-import { Button, Flex, Heading, HStack, Stack } from "@chakra-ui/react";
+import { Box, Button, Flex, Heading, HStack, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
   NativeSelectField,
   NativeSelectRoot,
 } from "@/components/ui/native-select";
+import { SchemaViewer } from "./schema-viewer";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
@@ -71,7 +72,7 @@ export const Content = (props: ContentProps) => {
   }, []);
 
   return (
-    <Stack gap={0}>
+    <Stack gap={0} height="100vh">
       <Flex p={2} justifyContent={"space-between"}>
         <HStack>
           <Heading fontWeight={"bold"}>{workspace.name}</Heading>
@@ -87,16 +88,28 @@ export const Content = (props: ContentProps) => {
           </Button>
         </HStack>
       </Flex>
-      <TailorDBTable
-        data={currentType?.schema.fields || {}}
-        handlers={{
-          onClickSourceType: (typeName) => {
+      <Box height="calc(50vh - 48px)">
+        <SchemaViewer
+          types={props.tailorDBTypes}
+          onTableClicked={(typeName) => {
             setCurrentType(
               getTailorDBTypeByName(props.tailorDBTypes, typeName)
             );
-          },
-        }}
-      />
+          }}
+        />
+      </Box>
+      <Box maxHeight="calc(50vh - 48px)">
+        <TailorDBTable
+          data={currentType?.schema.fields || {}}
+          handlers={{
+            onClickSourceType: (typeName) => {
+              setCurrentType(
+                getTailorDBTypeByName(props.tailorDBTypes, typeName)
+              );
+            },
+          }}
+        />
+      </Box>
     </Stack>
   );
 };

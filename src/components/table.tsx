@@ -118,34 +118,36 @@ export const TailorDBTable = (props: TailorDBTableProps) => {
   });
 
   return (
-    <Table.Root size="sm" variant="outline">
-      <Table.Header>
-        {table.getHeaderGroups().map((headerGroup) => (
-          <Table.Row key={headerGroup.id}>
-            {headerGroup.headers.map((header) => (
-              <Table.ColumnHeader key={header.id}>
-                {header.isPlaceholder
-                  ? null
-                  : flexRender(
-                      header.column.columnDef.header,
-                      header.getContext()
-                    )}
-              </Table.ColumnHeader>
-            ))}
-          </Table.Row>
-        ))}
-      </Table.Header>
-      <Table.Body>
-        {table.getRowModel().rows.map((row) => (
-          <Table.Row key={row.id}>
-            {row.getVisibleCells().map((cell) => (
-              <Table.Cell key={cell.id}>
-                {flexRender(cell.column.columnDef.cell, cell.getContext())}
-              </Table.Cell>
-            ))}
-          </Table.Row>
-        ))}
-      </Table.Body>
-    </Table.Root>
+    <Table.ScrollArea height="50vh">
+      <Table.Root size="sm" variant="outline" stickyHeader>
+        <Table.Header>
+          {table.getHeaderGroups().map((headerGroup) => (
+            <Table.Row key={headerGroup.id}>
+              {headerGroup.headers.map((header) => (
+                <Table.ColumnHeader key={header.id}>
+                  {header.isPlaceholder
+                    ? null
+                    : flexRender(
+                        header.column.columnDef.header,
+                        header.getContext()
+                      )}
+                </Table.ColumnHeader>
+              ))}
+            </Table.Row>
+          ))}
+        </Table.Header>
+        <Table.Body>
+          {table.getRowModel().rows.map((row) => (
+            <Table.Row key={row.id}>
+              {row.getVisibleCells().map((cell) => (
+                <Table.Cell key={cell.id}>
+                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                </Table.Cell>
+              ))}
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
+    </Table.ScrollArea>
   );
 };
