@@ -1,16 +1,21 @@
 "use client";
 import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
-import { useState } from "react";
-
-type ContentProps = {
-  workspace: WorkspaceResult["workspace"];
-  tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
-};
+import { TailorDBTable } from "@/components/table";
+import { Flex, Heading, HStack, Stack } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
 
+const getTailorDBTypeByName = (
+  types: TailorDBTypes,
+  name: string | undefined
+) => {
+  return types.find((type) => type.name === name) ?? null;
+};
+
 const TypeSelector = (props: {
+  currentType: TailorDBType | null;
   types: TailorDBTypesResult["tailordbTypes"];
   onChange: (type: TailorDBType) => void;
 }) => {
@@ -18,8 +23,9 @@ const TypeSelector = (props: {
 
   return (
     <select
+      value={props.currentType?.name}
       onChange={(e) => {
-        const selectedType = types.find((type) => type.name === e.target.value);
+        const selectedType = getTailorDBTypeByName(types, e.target.value);
         if (!selectedType) {
           return;
         }
@@ -36,16 +42,50 @@ const TypeSelector = (props: {
   );
 };
 
-export const Content = (props: ContentProps) => {
-  const [currentType, setCurrentType] = useState<TailorDBType | null>(null);
-  const { workspace } = props;
+type ContentProps = {
+  initialTypeName?: string;
+  workspace: WorkspaceResult["workspace"];
+  tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
+};
 
-  console.log(currentType);
+export const Content = (props: ContentProps) => {
+  const { workspace } = props;
+  const initialType = getTailorDBTypeByName(
+    props.tailorDBTypes,
+    props.initialTypeName
+  );
+  const [currentType, setCurrentType] = useState<TailorDBType | null>(
+    initialType
+  );
+
+  useEffect(() => {
+    if (!currentType && props.tailorDBTypes.length > 0) {
+      setCurrentType(props.tailorDBTypes[0]);
+    }
+  }, []);
 
   return (
-    <div>
-      <div>Workspace: {workspace.name}</div>
-      <TypeSelector types={props.tailorDBTypes} onChange={setCurrentType} />
-    </div>
+    <Stack gap={0}>
+      <Flex px={1} py={2}>
+        <HStack>
+          <Heading fontWeight={"bold"}>{workspace.name}</Heading>
+          <TypeSelector
+            currentType={currentType}
+            onChange={setCurrentType}
+            types={props.tailorDBTypes}
+          />
+        </HStack>
+      </Flex>
+      <TailorDBTable
+        data={currentType?.schema.fields || {}}
+        handlers={{
+          onClickSourceType: (typeName) => {
+            setCurrentType(
+              getTailorDBTypeByName(props.tailorDBTypes, typeName)
+            );
+          },
+        }}
+      />
+    </Stack>
   );
 };

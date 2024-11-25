@@ -17,9 +17,24 @@ export type TailorDBServicesResult = {
   }>;
 };
 
+export type TailorDBSchemaField = {
+  name: string;
+  type: string;
+  description: string;
+  required?: boolean;
+  foreignKey?: boolean;
+  foreignKeyType?: string;
+  sourceId?: string;
+};
+
+export type TailorDBSchemaFields = Record<string, TailorDBSchemaField>;
+
 export type TailorDBTypesResult = {
   tailordbTypes: Array<{
     name: string;
-    schema: unknown;
+    schema: {
+      description: string;
+      fields: TailorDBSchemaFields;
+    };
   }>;
 };

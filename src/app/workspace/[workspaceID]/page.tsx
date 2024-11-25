@@ -5,6 +5,8 @@ import {
 } from "@/app/api";
 import { Content } from "./content";
 
+export const dynamic = "force-dynamic";
+
 type PageParams = Promise<{
   workspaceID: string;
 }>;

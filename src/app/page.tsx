@@ -1,5 +1,3 @@
-import ky from "ky";
-import { WorkspacesResult } from "./types";
 import { Content } from "./content";
 import { getWorkspaces } from "./api";
 
