@@ -1,7 +1,7 @@
 "use client";
 import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
 import { TailorDBTable } from "@/components/table";
-import { Flex, Heading, HStack, Stack } from "@chakra-ui/react";
+import { Button, Flex, Heading, HStack, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
   NativeSelectField,
@@ -72,7 +72,7 @@ export const Content = (props: ContentProps) => {
 
   return (
     <Stack gap={0}>
-      <Flex p={2}>
+      <Flex p={2} justifyContent={"space-between"}>
         <HStack>
           <Heading fontWeight={"bold"}>{workspace.name}</Heading>
           <TypeSelector
@@ -80,6 +80,11 @@ export const Content = (props: ContentProps) => {
             onChange={setCurrentType}
             types={props.tailorDBTypes}
           />
+        </HStack>
+        <HStack>
+          <Button size="xs" colorPalette="blue">
+            Add column
+          </Button>
         </HStack>
       </Flex>
       <TailorDBTable

@@ -7,6 +7,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { useMemo } from "react";
+import { FcOk } from "react-icons/fc";
 
 const columnHelper = createColumnHelper<TailorDBSchemaField>();
 const buildColumns = (props: {
@@ -14,6 +15,9 @@ const buildColumns = (props: {
 }) => [
   columnHelper.accessor("name", {
     header: () => "Name",
+  }),
+  columnHelper.accessor("description", {
+    header: () => "Description",
   }),
   columnHelper.accessor("type", {
     header: () => "Type",
@@ -49,11 +53,33 @@ const buildColumns = (props: {
       }
     },
   }),
+  columnHelper.accessor("foreignKey", {
+    header: () => "Foreign Key",
+    cell: (cell) => {
+      const foreignKey = cell.getValue();
+      const typeName = cell.row.original.foreignKeyType;
+      if (foreignKey && typeName) {
+        return (
+          <Badge
+            css={{ cursor: "pointer" }}
+            variant="outline"
+            onClick={() => {
+              props.onClickSourceType(typeName);
+            }}
+          >
+            {typeName}
+          </Badge>
+        );
+      }
+    },
+  }),
   columnHelper.accessor("required", {
     header: () => "Required",
-  }),
-  columnHelper.accessor("description", {
-    header: () => "Description",
+    cell: (cell) => {
+      const required = cell.getValue();
+      return required && <FcOk />;
+    },
+    enableResizing: false,
   }),
 ];
 
@@ -67,10 +93,18 @@ type TailorDBTableProps = {
 export const TailorDBTable = (props: TailorDBTableProps) => {
   const data = useMemo(
     () =>
-      Object.keys(props.data).map((fieldName) => ({
-        ...props.data[fieldName],
-        name: fieldName,
-      })),
+      Object.keys(props.data).flatMap((fieldName) => {
+        if (["createdAt", "updatedAt"].includes(fieldName)) {
+          return [];
+        }
+
+        return [
+          {
+            ...props.data[fieldName],
+            name: fieldName,
+          },
+        ];
+      }),
     [props.data]
   );
 
