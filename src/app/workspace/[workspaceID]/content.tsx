@@ -3,6 +3,10 @@ import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
 import { TailorDBTable } from "@/components/table";
 import { Flex, Heading, HStack, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
+import {
+  NativeSelectField,
+  NativeSelectRoot,
+} from "@/components/ui/native-select";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
@@ -22,23 +26,25 @@ const TypeSelector = (props: {
   const { types } = props;
 
   return (
-    <select
-      value={props.currentType?.name}
-      onChange={(e) => {
-        const selectedType = getTailorDBTypeByName(types, e.target.value);
-        if (!selectedType) {
-          return;
-        }
-
-        props.onChange(selectedType);
-      }}
-    >
-      {types.map((type) => (
-        <option key={type.name} value={type.name}>
-          {type.name}
-        </option>
-      ))}
-    </select>
+    <NativeSelectRoot size="sm" variant="subtle">
+      <NativeSelectField
+        paddingX={2}
+        value={props.currentType?.name}
+        onChange={(e) => {
+          const selectedType = getTailorDBTypeByName(types, e.target.value);
+          if (!selectedType) {
+            return;
+          }
+          props.onChange(selectedType);
+        }}
+      >
+        {types.map((type) => (
+          <option key={type.name} value={type.name}>
+            {type.name}
+          </option>
+        ))}
+      </NativeSelectField>
+    </NativeSelectRoot>
   );
 };
 
@@ -66,7 +72,7 @@ export const Content = (props: ContentProps) => {
 
   return (
     <Stack gap={0}>
-      <Flex px={1} py={2}>
+      <Flex p={2}>
         <HStack>
           <Heading fontWeight={"bold"}>{workspace.name}</Heading>
           <TypeSelector
