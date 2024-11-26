@@ -1,10 +1,13 @@
 import { TailorDBTypesResult } from "@/app/types";
+import { Button } from "@chakra-ui/react";
 import Dagre from "@dagrejs/dagre";
 import {
   Background,
   BuiltInNode,
+  ControlButton,
   Controls,
   MarkerType,
+  Panel,
   ReactFlow,
   useEdgesState,
   useNodesState,
@@ -100,6 +103,9 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
       }}
       fitView
     >
+      <Panel>
+        <Button size="xs">New table</Button>
+      </Panel>
       <Background />
       <Controls />
     </ReactFlow>

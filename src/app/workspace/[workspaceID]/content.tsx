@@ -9,6 +9,7 @@ import {
   Heading,
   HStack,
   Stack,
+  Text,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
@@ -113,9 +114,7 @@ export const Content = (props: ContentProps) => {
                 />
               </Box>
               <Box>
-                <Button size="xs" colorPalette="blue">
-                  Add column
-                </Button>
+                <Button size="xs">Add column</Button>
               </Box>
             </Flex>
             <Flex>

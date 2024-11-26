@@ -1,5 +1,5 @@
 import { TailorDBSchemaField, TailorDBSchemaFields } from "@/app/types";
-import { Table, Badge } from "@chakra-ui/react";
+import { Table, Badge, Button } from "@chakra-ui/react";
 import {
   createColumnHelper,
   flexRender,
@@ -80,6 +80,17 @@ const buildColumns = (props: {
       return required && <FcOk />;
     },
     enableResizing: false,
+  }),
+  columnHelper.display({
+    id: "actions",
+    header: () => "Actions",
+    cell: () => {
+      return (
+        <Button size="xs" variant="outline" height={6}>
+          Edit
+        </Button>
+      );
+    },
   }),
 ];
 
