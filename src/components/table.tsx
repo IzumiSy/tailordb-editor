@@ -118,7 +118,7 @@ export const TailorDBTable = (props: TailorDBTableProps) => {
   });
 
   return (
-    <Table.ScrollArea height="50vh">
+    <Table.ScrollArea width="100%">
       <Table.Root size="sm" variant="outline" stickyHeader>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (

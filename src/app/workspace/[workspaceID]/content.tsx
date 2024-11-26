@@ -1,7 +1,15 @@
 "use client";
 import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
 import { TailorDBTable } from "@/components/table";
-import { Box, Button, Flex, Heading, HStack, Stack } from "@chakra-ui/react";
+import {
+  Badge,
+  Box,
+  Button,
+  Flex,
+  Heading,
+  HStack,
+  Stack,
+} from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
   NativeSelectField,
@@ -75,41 +83,56 @@ export const Content = (props: ContentProps) => {
     <Stack gap={0} height="100vh">
       <Flex p={2} justifyContent={"space-between"}>
         <HStack>
-          <Heading fontWeight={"bold"}>{workspace.name}</Heading>
-          <TypeSelector
-            currentType={currentType}
-            onChange={setCurrentType}
-            types={props.tailorDBTypes}
-          />
-        </HStack>
-        <HStack>
-          <Button size="xs" colorPalette="blue">
-            Add column
-          </Button>
+          <Heading fontWeight={"bold"}>TailorDB Editor</Heading>
+          <Badge> {workspace.name}</Badge>
         </HStack>
       </Flex>
-      <Box height="calc(50vh - 48px)">
-        <SchemaViewer
-          types={props.tailorDBTypes}
-          onTableClicked={(typeName) => {
-            setCurrentType(
-              getTailorDBTypeByName(props.tailorDBTypes, typeName)
-            );
-          }}
-        />
-      </Box>
-      <Box maxHeight="calc(50vh - 48px)">
-        <TailorDBTable
-          data={currentType?.schema.fields || {}}
-          handlers={{
-            onClickSourceType: (typeName) => {
+      <HStack gap={0} borderTop={"1px solid #e2e2e2"}>
+        <Box
+          width="55vw"
+          height="calc(100vh - 48px)"
+          borderRight={"1px solid #e2e2e2"}
+        >
+          <SchemaViewer
+            types={props.tailorDBTypes}
+            onTableClicked={(typeName) => {
               setCurrentType(
                 getTailorDBTypeByName(props.tailorDBTypes, typeName)
               );
-            },
-          }}
-        />
-      </Box>
+            }}
+          />
+        </Box>
+        <Flex alignSelf="flex-start" flex={1}>
+          <Stack width="100%" gap={0}>
+            <Flex p={2} justifyContent={"space-between"}>
+              <Box width="300px">
+                <TypeSelector
+                  currentType={currentType}
+                  onChange={setCurrentType}
+                  types={props.tailorDBTypes}
+                />
+              </Box>
+              <Box>
+                <Button size="xs" colorPalette="blue">
+                  Add column
+                </Button>
+              </Box>
+            </Flex>
+            <Flex>
+              <TailorDBTable
+                data={currentType?.schema.fields || {}}
+                handlers={{
+                  onClickSourceType: (typeName) => {
+                    setCurrentType(
+                      getTailorDBTypeByName(props.tailorDBTypes, typeName)
+                    );
+                  },
+                }}
+              />
+            </Flex>
+          </Stack>
+        </Flex>
+      </HStack>
     </Stack>
   );
 };
