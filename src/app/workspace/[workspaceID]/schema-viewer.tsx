@@ -1,5 +1,5 @@
 import { TailorDBTypesResult } from "@/app/types";
-import { Button } from "@chakra-ui/react";
+import { Box, Button } from "@chakra-ui/react";
 import Dagre from "@dagrejs/dagre";
 import {
   Background,
