@@ -17,6 +17,8 @@ import {
   NativeSelectRoot,
 } from "@/components/ui/native-select";
 import { SchemaViewer } from "./schema-viewer";
+import { Allotment } from "allotment";
+import "allotment/dist/style.css";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
@@ -88,25 +90,21 @@ export const Content = (props: ContentProps) => {
           <Badge> {workspace.name}</Badge>
         </HStack>
       </Flex>
-      <HStack gap={0} borderTop={"1px solid #e2e2e2"}>
-        <Box
-          width="55vw"
-          height="calc(100vh - 48px)"
-          borderRight={"1px solid #e2e2e2"}
-        >
-          <SchemaViewer
-            types={props.tailorDBTypes}
-            onTableClicked={(typeName) => {
-              setCurrentType(
-                getTailorDBTypeByName(props.tailorDBTypes, typeName)
-              );
-            }}
-          />
-        </Box>
-        <Flex alignSelf="flex-start" flex={1}>
-          <Stack width="100%" gap={0}>
+      <HStack gap={0} borderTop={"1px solid #e2e2e2"} height="100%">
+        <Allotment>
+          <Allotment.Pane>
+            <SchemaViewer
+              types={props.tailorDBTypes}
+              onTableClicked={(typeName) => {
+                setCurrentType(
+                  getTailorDBTypeByName(props.tailorDBTypes, typeName)
+                );
+              }}
+            />
+          </Allotment.Pane>
+          <Allotment.Pane>
             <Flex p={2} justifyContent={"space-between"}>
-              <Box width="300px">
+              <Box width="300px" resize="both">
                 <TypeSelector
                   currentType={currentType}
                   onChange={setCurrentType}
@@ -129,8 +127,8 @@ export const Content = (props: ContentProps) => {
                 }}
               />
             </Flex>
-          </Stack>
-        </Flex>
+          </Allotment.Pane>
+        </Allotment>
       </HStack>
     </Stack>
   );
