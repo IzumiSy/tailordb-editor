@@ -156,9 +156,11 @@ const Content = (props: ContentProps) => {
 };
 
 /**
- * ReactFlow requires static width and height for the container element
- * However, we are using Allotment that has dynamic width and height before its children are rendered
- * So we need to set the width of the container element dynamically to prevent React Flow warning (https://reactflow.dev/error#004)
+ * A hook to prevent React Flow warning (https://reactflow.dev/error#004)
+ *
+ * Background of this hook is that ReactFlow requires static width and height for the container element
+ * However, we are using Allotment that has dynamic width and height before its children are rendered,
+ * so this hook provides a set of functions that helps us update the width of the container element dynamically.
  */
 const useSchemaViewerResizer = () => {
   const reactFlow = useReactFlow();
