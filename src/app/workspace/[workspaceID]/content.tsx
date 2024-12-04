@@ -19,6 +19,7 @@ import {
 import { SchemaViewer } from "./schema-viewer";
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
+import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
@@ -26,9 +27,7 @@ type TailorDBType = TailorDBTypes[number];
 const getTailorDBTypeByName = (
   types: TailorDBTypes,
   name: string | undefined
-) => {
-  return types.find((type) => type.name === name) ?? null;
-};
+) => types.find((type) => type.name === name) ?? null;
 
 const TypeSelector = (props: {
   currentType: TailorDBType | null;
@@ -60,27 +59,32 @@ const TypeSelector = (props: {
   );
 };
 
-type ContentProps = {
-  initialTypeName?: string;
+type ContentContainerProps = {
   workspace: WorkspaceResult["workspace"];
   tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
 };
 
-export const Content = (props: ContentProps) => {
-  const { workspace } = props;
-  const initialType = getTailorDBTypeByName(
-    props.tailorDBTypes,
-    props.initialTypeName
+export const ContentContainer = (props: ContentContainerProps) => {
+  return (
+    <ReactFlowProvider>
+      <Content containerProps={props} />
+    </ReactFlowProvider>
   );
-  const [currentType, setCurrentType] = useState<TailorDBType | null>(
-    initialType
-  );
+};
 
-  useEffect(() => {
-    if (!currentType && props.tailorDBTypes.length > 0) {
-      setCurrentType(props.tailorDBTypes[0]);
-    }
-  }, []);
+type ContentProps = {
+  containerProps: ContentContainerProps;
+};
+
+const Content = (props: ContentProps) => {
+  const reactFlow = useReactFlow();
+  const { workspace, tailorDBTypes } = props.containerProps;
+  const initialTailorDBType = tailorDBTypes[0];
+  const [currentType, setCurrentType] = useState<TailorDBType | null>(
+    getTailorDBTypeByName(tailorDBTypes, initialTailorDBType.name)
+  );
+  const [isSchemaViewerInitialized, setSchemaViewerInitialized] =
+    useState(false);
 
   return (
     <Stack gap={0} height="100vh">
@@ -91,42 +95,49 @@ export const Content = (props: ContentProps) => {
         </HStack>
       </Flex>
       <HStack gap={0} borderTop={"1px solid #e2e2e2"} height="100%">
-        <Allotment>
-          <Allotment.Pane>
+        <Allotment onChange={() => reactFlow.fitView()}>
+          <Allotment.Pane preferredSize={"50%"}>
             <SchemaViewer
-              types={props.tailorDBTypes}
+              types={tailorDBTypes}
+              onInitialized={() => setSchemaViewerInitialized(true)}
               onTableClicked={(typeName) => {
-                setCurrentType(
-                  getTailorDBTypeByName(props.tailorDBTypes, typeName)
-                );
+                setCurrentType(getTailorDBTypeByName(tailorDBTypes, typeName));
               }}
             />
           </Allotment.Pane>
           <Allotment.Pane>
-            <Flex p={2} justifyContent={"space-between"}>
-              <Box width="300px" resize="both">
-                <TypeSelector
-                  currentType={currentType}
-                  onChange={setCurrentType}
-                  types={props.tailorDBTypes}
-                />
-              </Box>
-              <Box>
-                <Button size="xs">Add column</Button>
-              </Box>
-            </Flex>
-            <Flex>
-              <TailorDBTable
-                data={currentType?.schema.fields || {}}
-                handlers={{
-                  onClickSourceType: (typeName) => {
-                    setCurrentType(
-                      getTailorDBTypeByName(props.tailorDBTypes, typeName)
-                    );
-                  },
-                }}
-              />
-            </Flex>
+            {isSchemaViewerInitialized ? (
+              <>
+                <Flex p={2} justifyContent={"space-between"}>
+                  <Box width="300px" resize="both">
+                    <TypeSelector
+                      currentType={currentType}
+                      onChange={setCurrentType}
+                      types={tailorDBTypes}
+                    />
+                  </Box>
+                  <Box>
+                    <Button size="xs">Add column</Button>
+                  </Box>
+                </Flex>
+                <Flex>
+                  <TailorDBTable
+                    data={currentType?.schema.fields || {}}
+                    handlers={{
+                      onClickSourceType: (typeName) => {
+                        setCurrentType(
+                          getTailorDBTypeByName(tailorDBTypes, typeName)
+                        );
+                      },
+                    }}
+                  />
+                </Flex>
+              </>
+            ) : (
+              <Flex p={3}>
+                <Text>Initializing...</Text>
+              </Flex>
+            )}
           </Allotment.Pane>
         </Allotment>
       </HStack>

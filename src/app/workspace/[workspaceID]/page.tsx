@@ -3,7 +3,8 @@ import {
   getTailorDBTypes,
   getWorkspaceByID,
 } from "@/app/api";
-import { Content } from "./content";
+import { ContentContainer } from "./content";
+import { TailorDBTypesResult } from "@/app/types";
 
 export const dynamic = "force-dynamic";
 
@@ -32,8 +33,12 @@ const Page = async (props: { params: PageParams }) => {
     namespaceName: firstNamespace,
   });
 
+  if (tailorDBTypes.tailordbTypes.length === 0) {
+    return <div>No TailorDB types found</div>;
+  }
+
   return (
-    <Content
+    <ContentContainer
       workspace={ws.workspace}
       tailorDBTypes={tailorDBTypes.tailordbTypes}
     />

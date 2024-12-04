@@ -4,7 +4,6 @@ import Dagre from "@dagrejs/dagre";
 import {
   Background,
   BuiltInNode,
-  ControlButton,
   Controls,
   MarkerType,
   Panel,
@@ -85,6 +84,7 @@ const buildNodes = (props: { types: TailorDBTypesResult["tailordbTypes"] }) => {
 type SchemaViewerProps = {
   types: TailorDBTypesResult["tailordbTypes"];
   onTableClicked: (id: string) => void;
+  onInitialized?: () => void;
 };
 
 export const SchemaViewer = (props: SchemaViewerProps) => {
@@ -96,6 +96,7 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
     <ReactFlow
       nodes={nodes}
       edges={edges}
+      onInit={() => props.onInitialized?.()}
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={(e, node) => {
