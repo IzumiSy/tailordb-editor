@@ -18,7 +18,7 @@ export class OperatorAPI {
 
   constructor(token: string) {
     this.request = ky.extend({
-      prefixUrl: "https://api.dev.tailor.tech/",
+      prefixUrl: process.env.API_URL,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
