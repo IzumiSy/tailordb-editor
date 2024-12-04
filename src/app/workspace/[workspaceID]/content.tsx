@@ -21,6 +21,7 @@ import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { debounce } from "es-toolkit";
+import Link from "next/link";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
@@ -95,7 +96,9 @@ const Content = (props: ContentProps) => {
       <Flex p={2} justifyContent={"space-between"}>
         <HStack>
           <Heading fontWeight={"bold"}>TailorDB Editor</Heading>
-          <Badge> {workspace.name}</Badge>
+          <Badge>
+            <Link href="/workspace">{workspace.name}</Link>
+          </Badge>
         </HStack>
       </Flex>
       <HStack gap={0} borderTop={"1px solid #e2e2e2"} height="100%">

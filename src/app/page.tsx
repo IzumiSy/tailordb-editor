@@ -1,10 +1,15 @@
-import { Content } from "./content";
-import { getWorkspaces } from "./api";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 
 const Page = async () => {
-  const ws = await getWorkspaces();
+  const cookieStore = await cookies();
+  const token = cookieStore.get("patToken");
 
-  return <Content ws={ws} />;
+  if (!token) {
+    redirect("/auth");
+  }
+
+  redirect("/workspace");
 };
 
 export default Page;

@@ -1,4 +1,4 @@
-import ky from "ky";
+import ky, { HTTPError, NormalizedOptions } from "ky";
 import {
   TailorDBServicesResult,
   TailorDBTypesResult,
@@ -6,58 +6,81 @@ import {
   WorkspacesResult,
 } from "./types";
 
-const tailorAPI = ky.extend({
-  prefixUrl: "https://api.dev.tailor.tech/",
-  headers: {
-    "Content-Type": "application/json",
-    Authorization: `Bearer tpp_ZcNd1pDwq68I38o2Oh2VE9gLPM75k0Gv`,
-  },
-});
+export class UnauthorizedError extends HTTPError {
+  constructor(baseError: HTTPError) {
+    super(baseError.response, baseError.request, baseError.options);
+    this.name = "UnauthorizedError";
+  }
+}
 
-export const getWorkspaces = async () => {
-  return await tailorAPI
-    .post<WorkspacesResult>("operator.v1.OperatorService/ListWorkspaces", {
-      json: {},
-    })
-    .json();
-};
+export class OperatorAPI {
+  private request: typeof ky;
 
-export const getWorkspaceByID = async (props: { id: string }) => {
-  return await tailorAPI
-    .post<WorkspaceResult>("operator.v1.OperatorService/GetWorkspace", {
-      json: {
-        workspace_id: props.id,
+  constructor(token: string) {
+    this.request = ky.extend({
+      prefixUrl: "https://api.dev.tailor.tech/",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
       },
-    })
-    .json();
-};
+      hooks: {
+        beforeError: [
+          (error) => {
+            const { response } = error;
+            switch (response.status) {
+              case 401:
+                return new UnauthorizedError(error);
+              default:
+                return error;
+            }
+          },
+        ],
+      },
+    });
+  }
 
-export const getTailorDBServices = async (props: { workspaceID: string }) => {
-  return await tailorAPI
-    .post<TailorDBServicesResult>(
-      "operator.v1.OperatorService/ListTailorDBServices",
-      {
-        json: {
-          workspace_id: props.workspaceID,
-        },
-      }
-    )
-    .json();
-};
+  async getWorkspaces() {
+    return await this.request
+      .post<WorkspacesResult>("operator.v1.OperatorService/ListWorkspaces", {
+        json: {},
+      })
+      .json();
+  }
 
-export const getTailorDBTypes = async (props: {
-  workspaceID: string;
-  namespaceName: string;
-}) => {
-  return await tailorAPI
-    .post<TailorDBTypesResult>(
-      "operator.v1.OperatorService/ListTailorDBTypes",
-      {
+  async getWorkspaceByID(props: { id: string }) {
+    return await this.request
+      .post<WorkspaceResult>("operator.v1.OperatorService/GetWorkspace", {
         json: {
-          workspace_id: props.workspaceID,
-          namespace_name: props.namespaceName,
+          workspace_id: props.id,
         },
-      }
-    )
-    .json();
-};
+      })
+      .json();
+  }
+
+  async getTailorDBServices(props: { workspaceID: string }) {
+    return await this.request
+      .post<TailorDBServicesResult>(
+        "operator.v1.OperatorService/ListTailorDBServices",
+        {
+          json: {
+            workspace_id: props.workspaceID,
+          },
+        }
+      )
+      .json();
+  }
+
+  getTailorDBTypes(props: { workspaceID: string; namespaceName: string }) {
+    return this.request
+      .post<TailorDBTypesResult>(
+        "operator.v1.OperatorService/ListTailorDBTypes",
+        {
+          json: {
+            workspace_id: props.workspaceID,
+            namespace_name: props.namespaceName,
+          },
+        }
+      )
+      .json();
+  }
+}
