@@ -1,7 +1,6 @@
 "use client";
 import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import { ThemeProvider } from "next-themes";
-import { AuthGuard } from "./auth";
 
 export const Provider = (props: { children: React.ReactNode }) => {
   return (

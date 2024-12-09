@@ -1,7 +1,6 @@
-import { OperatorAPI, UnauthorizedError } from "@/app/api";
+import { OperatorAPI } from "@/app/api";
 import { ContentContainer } from "./content";
 import { useAuth, withErrorRedirection } from "@/app/auth";
-import { redirect } from "next/navigation";
 
 export const dynamic = "force-dynamic";
 
@@ -38,6 +37,7 @@ const Page = async (props: { params: PageParams }) => {
 
     return (
       <ContentContainer
+        namespaceName={firstNamespace}
         workspace={ws.workspace}
         tailorDBTypes={tailorDBTypes.tailordbTypes}
       />

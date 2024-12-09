@@ -9,7 +9,6 @@ import {
   Flex,
   Heading,
   HStack,
-  IconButton,
   Input,
   Stack,
   Text,
@@ -24,8 +23,7 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
-import { Checkbox } from "@/components/ui/checkbox";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import {
   NativeSelectField,
   NativeSelectRoot,
@@ -36,21 +34,8 @@ import "allotment/dist/style.css";
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { debounce } from "es-toolkit";
 import Link from "next/link";
-import { RxCross1 } from "react-icons/rx";
-import {
-  useFieldArray,
-  useForm,
-  UseFormReturn,
-  useWatch,
-} from "react-hook-form";
-import { has } from "es-toolkit/compat";
-import {
-  emptyField,
-  FieldSpecificForm,
-  fieldTypes,
-  FormFields,
-  useNewTableForm,
-} from "./new-table";
+import { useNewTableForm } from "./new-table";
+import { createTableAction } from "@/actions/table";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
@@ -91,6 +76,7 @@ const TypeSelector = (props: {
 };
 
 type ContentContainerProps = {
+  namespaceName: string;
   workspace: WorkspaceResult["workspace"];
   tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
 };
@@ -107,6 +93,8 @@ export const ContentContainer = (props: ContentContainerProps) => {
       <NewTableDrawer
         drawerOpened={drawerOpened}
         setDrawerOpened={setDrawerOpened}
+        namespaceName={props.workspace.name}
+        workspace={props.workspace}
         tailorDBTypes={props.tailorDBTypes}
       />
     </ReactFlowProvider>
@@ -116,10 +104,18 @@ export const ContentContainer = (props: ContentContainerProps) => {
 const NewTableDrawer = (props: {
   drawerOpened: boolean;
   setDrawerOpened: (opened: boolean) => void;
+  namespaceName: string;
+  workspace: WorkspaceResult["workspace"];
   tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
 }) => {
   const { fields, register, handleSubmit, renderComponents } =
     useNewTableForm();
+  const [isCreatingTable, startCreatingTable] = useTransition();
+  const createTable = handleSubmit((data) => {
+    startCreatingTable(async () => {
+      await createTableAction(props.workspace.id, props.namespaceName, data);
+    });
+  });
 
   return (
     <DrawerRoot
@@ -152,8 +148,8 @@ const NewTableDrawer = (props: {
           <Flex flexGrow={1}>
             <Button
               width="100%"
-              disabled={fields.length === 0}
-              onClick={handleSubmit((data) => console.log(data))}
+              disabled={fields.length === 0 || isCreatingTable}
+              onClick={createTable}
             >
               Create
             </Button>
