@@ -81,80 +81,80 @@ export const useNewTableForm = () => {
     name: "fields",
   });
 
-  const renderComponents = useCallback(
-    (props: { tailorDBTypes: TailorDBTypesResult["tailordbTypes"] }) =>
-      fieldsOp.fields.map((_, index) => {
+  const renderComponents = (props: {
+    tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
+  }) => (
+    <>
+      {fieldsOp.fields.map((_, index) => {
         const fieldTypeName = watch(`fields.${index}.type`);
         const hasSource = watch(`fields.${index}.hasSource`);
 
         return (
-          <>
-            <Stack
-              key={index}
-              p={2}
-              borderColor={"gray.200"}
-              borderWidth={"1px"}
-              boxShadow={"xs"}
-            >
-              <HStack alignItems={"self-start"}>
-                <IconButton
-                  variant={"ghost"}
-                  size="xs"
-                  onClick={() => fieldsOp.remove(index)}
-                >
-                  <RxCross1 />
-                </IconButton>
-                <Stack flexGrow={1}>
-                  <HStack>
-                    <Input
-                      placeholder="Field Name"
-                      {...register(`fields.${index}.name`, {
-                        required: true,
-                      })}
-                    />
-                    {!hasSource && (
-                      <NativeSelectRoot width={"200px"}>
-                        <NativeSelectField
-                          {...register(`fields.${index}.type`, {
-                            required: true,
-                          })}
-                          placeholder="Field type"
-                        >
-                          {Object.keys(fieldTypes).map((key) => {
-                            const typeKey = key as keyof typeof fieldTypes;
-                            const type = fieldTypes[typeKey];
-
-                            return (
-                              <option key={typeKey} value={typeKey}>
-                                {type.label}
-                              </option>
-                            );
-                          })}
-                        </NativeSelectField>
-                      </NativeSelectRoot>
-                    )}
-                  </HStack>
-                  <Input placeholder="Description" />
-                  <FieldSpecificForm
-                    index={index}
-                    form={form}
-                    fieldTypeName={fieldTypeName}
-                    tailorDBTypes={props.tailorDBTypes}
+          <Stack
+            key={index}
+            p={2}
+            borderColor={"gray.200"}
+            borderWidth={"1px"}
+            boxShadow={"xs"}
+          >
+            <HStack alignItems={"self-start"}>
+              <IconButton
+                variant={"ghost"}
+                size="xs"
+                onClick={() => fieldsOp.remove(index)}
+              >
+                <RxCross1 />
+              </IconButton>
+              <Stack flexGrow={1}>
+                <HStack>
+                  <Input
+                    placeholder="Field Name"
+                    {...register(`fields.${index}.name`, {
+                      required: true,
+                    })}
                   />
-                </Stack>
-              </HStack>
-            </Stack>
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => fieldsOp.append(emptyField)}
-            >
-              Add Field
-            </Button>
-          </>
+                  {!hasSource && (
+                    <NativeSelectRoot width={"200px"}>
+                      <NativeSelectField
+                        {...register(`fields.${index}.type`, {
+                          required: true,
+                        })}
+                        placeholder="Field type"
+                      >
+                        {Object.keys(fieldTypes).map((key) => {
+                          const typeKey = key as keyof typeof fieldTypes;
+                          const type = fieldTypes[typeKey];
+
+                          return (
+                            <option key={typeKey} value={typeKey}>
+                              {type.label}
+                            </option>
+                          );
+                        })}
+                      </NativeSelectField>
+                    </NativeSelectRoot>
+                  )}
+                </HStack>
+                <Input placeholder="Description" />
+                <FieldSpecificForm
+                  index={index}
+                  form={form}
+                  fieldTypeName={fieldTypeName}
+                  tailorDBTypes={props.tailorDBTypes}
+                />
+              </Stack>
+            </HStack>
+          </Stack>
         );
-      }),
-    [fieldsOp]
+      })}
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={() => fieldsOp.append(emptyField)}
+      >
+        Add Field
+      </Button>
+    </>
   );
 
   return {
