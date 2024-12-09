@@ -118,7 +118,8 @@ const NewTableDrawer = (props: {
   setDrawerOpened: (opened: boolean) => void;
   tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
 }) => {
-  const { fields, register, handleSubmit, renderFieldForm } = useNewTableForm();
+  const { fields, register, handleSubmit, renderComponents } =
+    useNewTableForm();
 
   return (
     <DrawerRoot
@@ -142,7 +143,7 @@ const NewTableDrawer = (props: {
         </DrawerHeader>
         <DrawerBody px={0}>
           <Stack py={2} px={4}>
-            {renderFieldForm({
+            {renderComponents({
               tailorDBTypes: props.tailorDBTypes,
             })}
           </Stack>

@@ -81,7 +81,7 @@ export const useNewTableForm = () => {
     name: "fields",
   });
 
-  const renderFieldForm = useCallback(
+  const renderComponents = useCallback(
     (props: { tailorDBTypes: TailorDBTypesResult["tailordbTypes"] }) =>
       fieldsOp.fields.map((_, index) => {
         const fieldTypeName = watch(`fields.${index}.type`);
@@ -161,7 +161,7 @@ export const useNewTableForm = () => {
     fields: fieldsOp.fields,
     register,
     handleSubmit,
-    renderFieldForm,
+    renderComponents,
   };
 };
 
