@@ -118,8 +118,7 @@ const NewTableDrawer = (props: {
   setDrawerOpened: (opened: boolean) => void;
   tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
 }) => {
-  const { fieldsOp, register, handleSubmit, renderFieldForm } =
-    useNewTableForm();
+  const { fields, register, handleSubmit, renderFieldForm } = useNewTableForm();
 
   return (
     <DrawerRoot
@@ -146,20 +145,13 @@ const NewTableDrawer = (props: {
             {renderFieldForm({
               tailorDBTypes: props.tailorDBTypes,
             })}
-            <Button
-              size="sm"
-              variant="outline"
-              onClick={() => fieldsOp.append(emptyField)}
-            >
-              Add Field
-            </Button>
           </Stack>
         </DrawerBody>
         <DrawerFooter borderColor={"gray.200"} borderTopWidth={"1px"}>
           <Flex flexGrow={1}>
             <Button
               width="100%"
-              disabled={fieldsOp.fields.length === 0}
+              disabled={fields.length === 0}
               onClick={handleSubmit((data) => console.log(data))}
             >
               Create
