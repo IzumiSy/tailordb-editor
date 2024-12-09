@@ -83,6 +83,7 @@ const buildNodes = (props: { types: TailorDBTypesResult["tailordbTypes"] }) => {
 
 type SchemaViewerProps = {
   types: TailorDBTypesResult["tailordbTypes"];
+  onNewTable: () => void;
   onTableClicked: (id: string) => void;
   onInitialized?: () => void;
 };
@@ -105,7 +106,9 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
       fitView
     >
       <Panel>
-        <Button size="xs">New table</Button>
+        <Button size="xs" onClick={props.onNewTable}>
+          New table
+        </Button>
       </Panel>
       <Background />
       <Controls />
