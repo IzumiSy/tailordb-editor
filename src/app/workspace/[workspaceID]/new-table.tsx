@@ -1,4 +1,5 @@
-import { TailorDBTypesResult } from "@/app/types";
+"use client";
+import { fieldTypes, FormFields, TailorDBTypesResult } from "@/app/types";
 import {
   Stack,
   Heading,
@@ -11,53 +12,9 @@ import {
   NativeSelectField,
 } from "@chakra-ui/react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useCallback, useEffect } from "react";
+import { useEffect } from "react";
 import { useFieldArray, useForm, UseFormReturn } from "react-hook-form";
 import { RxCross1 } from "react-icons/rx";
-
-export const fieldTypes = {
-  string: {
-    label: "String",
-  },
-  uuid: {
-    label: "UUID",
-  },
-  number: {
-    label: "Number",
-  },
-  boolean: {
-    label: "Boolean",
-  },
-  enum: {
-    label: "Enum",
-  },
-  date: {
-    label: "Date",
-  },
-  time: {
-    label: "Time",
-  },
-  dateTime: {
-    label: "DateTime",
-  },
-} as const;
-
-type TableField = {
-  name: string;
-  description: string;
-  type: keyof typeof fieldTypes;
-  required: false | "on";
-  index: false | "on";
-  unique: false | "on";
-  foreignKey?: string;
-  foreignKeyType?: string;
-  sourceID?: string;
-  hasSource?: boolean;
-  allowedValues?: Array<{
-    value: string;
-    description: string;
-  }>;
-};
 
 export const emptyField = {
   name: "",
@@ -66,12 +23,9 @@ export const emptyField = {
   required: false,
   index: false,
   unique: false,
+  nested: false,
+  array: false,
 } as const;
-
-export type FormFields = {
-  name: string;
-  fields: Array<TableField>;
-};
 
 export const useNewTableForm = () => {
   const form = useForm<FormFields>();
@@ -135,7 +89,12 @@ export const useNewTableForm = () => {
                     </NativeSelectRoot>
                   )}
                 </HStack>
-                <Input placeholder="Description" />
+                <Input
+                  placeholder="Description"
+                  {...register(`fields.${index}.description`, {
+                    required: true,
+                  })}
+                />
                 <FieldSpecificForm
                   index={index}
                   form={form}
@@ -250,6 +209,8 @@ export const FieldSpecificForm = (props: {
           </>
         ) : (
           <>
+            <Checkbox {...register(`fields.${index}.nested`)}>Nested</Checkbox>
+            <Checkbox {...register(`fields.${index}.array`)}>Array</Checkbox>
             <Checkbox {...register(`fields.${index}.required`)}>
               Required
             </Checkbox>

@@ -1,6 +1,6 @@
 import { OperatorAPI } from "@/app/api";
 import { ContentContainer } from "./content";
-import { useAuth, withErrorRedirection } from "@/app/auth";
+import { getAuth, withErrorRedirection } from "@/app/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -10,7 +10,7 @@ type PageParams = Promise<{
 
 const Page = async (props: { params: PageParams }) => {
   const { workspaceID } = await props.params;
-  const { patToken } = await useAuth();
+  const { patToken } = await getAuth();
   const operatorAPI = new OperatorAPI(patToken);
 
   return await withErrorRedirection(async () => {

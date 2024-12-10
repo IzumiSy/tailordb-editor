@@ -1,4 +1,4 @@
-import ky, { HTTPError, NormalizedOptions } from "ky";
+import ky, { HTTPError } from "ky";
 import {
   TailorDBServicesResult,
   TailorDBTypesResult,
@@ -18,7 +18,7 @@ export class OperatorAPI {
 
   constructor(token: string) {
     this.request = ky.extend({
-      prefixUrl: process.env.API_URL,
+      prefixUrl: process.env.NEXT_PUBLIC_API_URL,
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
@@ -70,8 +70,11 @@ export class OperatorAPI {
       .json();
   }
 
-  getTailorDBTypes(props: { workspaceID: string; namespaceName: string }) {
-    return this.request
+  async getTailorDBTypes(props: {
+    workspaceID: string;
+    namespaceName: string;
+  }) {
+    return await this.request
       .post<TailorDBTypesResult>(
         "operator.v1.OperatorService/ListTailorDBTypes",
         {
@@ -81,6 +84,56 @@ export class OperatorAPI {
           },
         }
       )
+      .json();
+  }
+
+  async createTailorDBType(props: {
+    workspaceID: string;
+    namespaceName: string;
+    typeName: string;
+    fields: Array<{
+      name: string;
+      type: string;
+      description: string;
+      required: boolean;
+      index: boolean;
+      unique: boolean;
+      foreignKey: boolean;
+      foreignKeyType?: string;
+      sourceID?: string;
+    }>;
+  }) {
+    return await this.request
+      .post("operator.v1.OperatorService/CreateTailorDBType", {
+        json: {
+          workspace_id: props.workspaceID,
+          namespace_name: props.namespaceName,
+          tailordb_type: {
+            name: props.typeName,
+            schema: {
+              description: props.typeName,
+              fields: props.fields.reduce((acc, field) => {
+                acc[field.name] = {
+                  type: field.type,
+                  description: field.description,
+                  required: field.required,
+                  array: false,
+                  validate: [],
+                  fields: {},
+                  index: field.index,
+                  unique: field.unique,
+                  foreign_key: field.foreignKey,
+                  foreign_key_type: field.foreignKeyType,
+                  source_id: field.sourceID,
+                  allowed_values: [],
+                  vector: false,
+                };
+                return acc;
+              }, {} as Record<string, unknown>),
+            },
+          },
+        },
+      })
       .json();
   }
 }

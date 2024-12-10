@@ -1,9 +1,9 @@
 import { Content } from "./content";
-import { useAuth, withErrorRedirection } from "../auth";
+import { getAuth, withErrorRedirection } from "../auth";
 import { OperatorAPI } from "../api";
 
 const Page = async () => {
-  const { patToken } = await useAuth();
+  const { patToken } = await getAuth();
   const operatorAPI = new OperatorAPI(patToken);
 
   return await withErrorRedirection(async () => {

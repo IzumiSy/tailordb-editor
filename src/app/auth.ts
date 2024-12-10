@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { UnauthorizedError } from "./api";
 
-export const useAuth = async () => {
+export const getAuth = async () => {
   const cookieStore = await cookies();
   const token = cookieStore.get("patToken");
   if (!token || !token.value) {

@@ -93,7 +93,7 @@ export const ContentContainer = (props: ContentContainerProps) => {
       <NewTableDrawer
         drawerOpened={drawerOpened}
         setDrawerOpened={setDrawerOpened}
-        namespaceName={props.workspace.name}
+        namespaceName={props.namespaceName}
         workspace={props.workspace}
         tailorDBTypes={props.tailorDBTypes}
       />
@@ -111,9 +111,19 @@ const NewTableDrawer = (props: {
   const { fields, register, handleSubmit, renderComponents } =
     useNewTableForm();
   const [isCreatingTable, startCreatingTable] = useTransition();
+  const [error, setError] = useState<Error | null>(null);
   const createTable = handleSubmit((data) => {
     startCreatingTable(async () => {
-      await createTableAction(props.workspace.id, props.namespaceName, data);
+      const result = await createTableAction(
+        props.workspace.id,
+        props.namespaceName,
+        data
+      );
+      if (!result.success) {
+        setError(result.result);
+        return;
+      }
+      props.setDrawerOpened(false);
     });
   });
 
@@ -145,15 +155,22 @@ const NewTableDrawer = (props: {
           </Stack>
         </DrawerBody>
         <DrawerFooter borderColor={"gray.200"} borderTopWidth={"1px"}>
-          <Flex flexGrow={1}>
-            <Button
-              width="100%"
-              disabled={fields.length === 0 || isCreatingTable}
-              onClick={createTable}
-            >
-              Create
-            </Button>
-          </Flex>
+          <Stack flexGrow={1}>
+            {error && (
+              <Flex>
+                <Text color="red.500">{error.message}</Text>
+              </Flex>
+            )}
+            <Flex flexGrow={1}>
+              <Button
+                width="100%"
+                disabled={fields.length === 0 || isCreatingTable}
+                onClick={createTable}
+              >
+                Create
+              </Button>
+            </Flex>
+          </Stack>
         </DrawerFooter>
       </DrawerContent>
     </DrawerRoot>
