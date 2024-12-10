@@ -12,6 +12,7 @@ import {
   useNodesState,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import { useEffect } from "react";
 
 const buildNodes = (props: { types: TailorDBTypesResult["tailordbTypes"] }) => {
   const nodes: Array<BuiltInNode> = props.types.map((type, index) => {
@@ -84,14 +85,21 @@ const buildNodes = (props: { types: TailorDBTypesResult["tailordbTypes"] }) => {
 type SchemaViewerProps = {
   types: TailorDBTypesResult["tailordbTypes"];
   onNewTable: () => void;
+  onRefresh: () => void;
   onTableClicked: (id: string) => void;
   onInitialized?: () => void;
 };
 
 export const SchemaViewer = (props: SchemaViewerProps) => {
   const { nodes: initialNodes, edges: initialEdges } = buildNodes(props);
-  const [nodes, _, onNodesChange] = useNodesState(initialNodes);
-  const [edges, __, onEdgesChange] = useEdgesState(initialEdges);
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  useEffect(() => {
+    const { nodes: initialNodes, edges: initialEdges } = buildNodes(props);
+    setNodes(initialNodes);
+    setEdges(initialEdges);
+  }, [props.types]);
 
   return (
     <ReactFlow
@@ -108,6 +116,14 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
       <Panel>
         <Button size="xs" onClick={props.onNewTable}>
           New table
+        </Button>
+        <Button
+          marginLeft={2}
+          size="xs"
+          variant={"outline"}
+          onClick={props.onRefresh}
+        >
+          Refresh
         </Button>
       </Panel>
       <Background />

@@ -83,19 +83,33 @@ type ContentContainerProps = {
 
 export const ContentContainer = (props: ContentContainerProps) => {
   const [drawerOpened, setDrawerOpened] = useState(false);
+  const [tables, setTables] = useState(props.tailorDBTypes);
+
+  const refetchTables = () => {
+    // TODO: "any" should be avoided
+    fetch(`/workspace/${props.workspace.id}/tables`).then(async (tables) => {
+      const tablesJson = await tables.json();
+      setTables(tablesJson.tables);
+    });
+  };
 
   return (
     <ReactFlowProvider>
       <Content
-        containerProps={props}
+        containerProps={{
+          namespaceName: props.namespaceName,
+          workspace: props.workspace,
+          tailorDBTypes: tables,
+        }}
         onNewTable={() => setDrawerOpened(true)}
+        onRefresh={refetchTables}
       />
       <NewTableDrawer
         drawerOpened={drawerOpened}
         setDrawerOpened={setDrawerOpened}
         namespaceName={props.namespaceName}
         workspace={props.workspace}
-        tailorDBTypes={props.tailorDBTypes}
+        tailorDBTypes={tables}
       />
     </ReactFlowProvider>
   );
@@ -180,6 +194,7 @@ const NewTableDrawer = (props: {
 type ContentProps = {
   containerProps: ContentContainerProps;
   onNewTable: () => void;
+  onRefresh: () => void;
 };
 
 const Content = (props: ContentProps) => {
@@ -213,6 +228,7 @@ const Content = (props: ContentProps) => {
             <Box width={schemaViewerPaneWidth} height={"calc(100vh - 48px)"}>
               <SchemaViewer
                 types={tailorDBTypes}
+                onRefresh={props.onRefresh}
                 onNewTable={props.onNewTable}
                 onInitialized={() => setSchemaViewerInitialized(true)}
                 onTableClicked={(typeName) => {
