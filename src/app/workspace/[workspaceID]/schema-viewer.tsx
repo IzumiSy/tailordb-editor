@@ -1,4 +1,4 @@
-import { TailorDBTypesResult } from "@/app/types";
+import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
 import { Box, Button } from "@chakra-ui/react";
 import Dagre from "@dagrejs/dagre";
 import {
@@ -12,6 +12,7 @@ import {
   useNodesState,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
+import Link from "next/link";
 import { useEffect } from "react";
 
 const buildNodes = (props: { types: TailorDBTypesResult["tailordbTypes"] }) => {
@@ -83,8 +84,8 @@ const buildNodes = (props: { types: TailorDBTypesResult["tailordbTypes"] }) => {
 };
 
 type SchemaViewerProps = {
+  workspace: WorkspaceResult["workspace"];
   types: TailorDBTypesResult["tailordbTypes"];
-  onNewTable: () => void;
   onRefresh: () => void;
   onTableClicked: (id: string) => void;
   onInitialized?: () => void;
@@ -114,7 +115,12 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
       fitView
     >
       <Panel>
-        <Button size="xs" onClick={props.onNewTable}>
+        <Button
+          as={Link}
+          size="xs"
+          // @ts-ignore
+          href={`/workspace/${props.workspace.id}/newTable`}
+        >
           New table
         </Button>
         <Button

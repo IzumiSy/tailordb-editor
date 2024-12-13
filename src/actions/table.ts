@@ -39,3 +39,29 @@ export const createTableAction = async (
     } as const;
   }
 };
+
+export const deleteTableAction = async (
+  workspaceID: string,
+  namespaceName: string,
+  typeName: string
+) => {
+  const { patToken } = await getAuth();
+  const operatorAPI = new OperatorAPI(patToken);
+
+  try {
+    await operatorAPI.deleteTailorDBType({
+      workspaceID: workspaceID,
+      namespaceName: namespaceName,
+      typeName: typeName,
+    });
+
+    return {
+      success: true,
+    } as const;
+  } catch (e) {
+    return {
+      success: false,
+      result: e as Error,
+    } as const;
+  }
+};

@@ -136,4 +136,20 @@ export class OperatorAPI {
       })
       .json();
   }
+
+  async deleteTailorDBType(props: {
+    workspaceID: string;
+    namespaceName: string;
+    typeName: string;
+  }) {
+    return await this.request
+      .post("operator.v1.OperatorService/DeleteTailorDBType", {
+        json: {
+          workspace_id: props.workspaceID,
+          namespace_name: props.namespaceName,
+          tailordb_type_name: props.typeName,
+        },
+      })
+      .json();
+  }
 }

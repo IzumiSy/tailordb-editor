@@ -1,29 +1,8 @@
 "use client";
 import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
 import { TailorDBTable } from "@/components/table";
-import {
-  Badge,
-  Box,
-  Button,
-  DrawerFooter,
-  Flex,
-  Heading,
-  HStack,
-  Input,
-  Stack,
-  Text,
-} from "@chakra-ui/react";
-import {
-  DrawerBackdrop,
-  DrawerBody,
-  DrawerCloseTrigger,
-  DrawerContent,
-  DrawerHeader,
-  DrawerRoot,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
-import { useEffect, useState, useTransition } from "react";
+import { Box, Button, Flex, Text } from "@chakra-ui/react";
+import { useEffect, useState } from "react";
 import {
   NativeSelectField,
   NativeSelectRoot,
@@ -34,8 +13,6 @@ import "allotment/dist/style.css";
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { debounce } from "es-toolkit";
 import Link from "next/link";
-import { useNewTableForm } from "./new-table";
-import { createTableAction } from "@/actions/table";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
@@ -82,7 +59,6 @@ type ContentContainerProps = {
 };
 
 export const ContentContainer = (props: ContentContainerProps) => {
-  const [drawerOpened, setDrawerOpened] = useState(false);
   const [tables, setTables] = useState(props.tailorDBTypes);
 
   const refetchTables = () => {
@@ -101,99 +77,14 @@ export const ContentContainer = (props: ContentContainerProps) => {
           workspace: props.workspace,
           tailorDBTypes: tables,
         }}
-        onNewTable={() => setDrawerOpened(true)}
         onRefresh={refetchTables}
-      />
-      <NewTableDrawer
-        drawerOpened={drawerOpened}
-        setDrawerOpened={setDrawerOpened}
-        namespaceName={props.namespaceName}
-        workspace={props.workspace}
-        tailorDBTypes={tables}
       />
     </ReactFlowProvider>
   );
 };
 
-const NewTableDrawer = (props: {
-  drawerOpened: boolean;
-  setDrawerOpened: (opened: boolean) => void;
-  namespaceName: string;
-  workspace: WorkspaceResult["workspace"];
-  tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
-}) => {
-  const { fields, register, handleSubmit, renderComponents } =
-    useNewTableForm();
-  const [isCreatingTable, startCreatingTable] = useTransition();
-  const [error, setError] = useState<Error | null>(null);
-  const createTable = handleSubmit((data) => {
-    startCreatingTable(async () => {
-      const result = await createTableAction(
-        props.workspace.id,
-        props.namespaceName,
-        data
-      );
-      if (!result.success) {
-        setError(result.result);
-        return;
-      }
-      props.setDrawerOpened(false);
-    });
-  });
-
-  return (
-    <DrawerRoot
-      size="xl"
-      open={props.drawerOpened}
-      onOpenChange={(e) => props.setDrawerOpened(e.open)}
-      placement="start"
-    >
-      <DrawerBackdrop />
-      <DrawerTrigger />
-      <DrawerContent>
-        <DrawerCloseTrigger />
-        <DrawerHeader borderColor={"gray.200"} borderBottomWidth={"1px"}>
-          <Stack>
-            <DrawerTitle>New Table</DrawerTitle>
-            <Input
-              placeholder="Table Name"
-              {...register("name", { required: true })}
-            />
-          </Stack>
-        </DrawerHeader>
-        <DrawerBody px={0}>
-          <Stack py={2} px={4}>
-            {renderComponents({
-              tailorDBTypes: props.tailorDBTypes,
-            })}
-          </Stack>
-        </DrawerBody>
-        <DrawerFooter borderColor={"gray.200"} borderTopWidth={"1px"}>
-          <Stack flexGrow={1}>
-            {error && (
-              <Flex>
-                <Text color="red.500">{error.message}</Text>
-              </Flex>
-            )}
-            <Flex flexGrow={1}>
-              <Button
-                width="100%"
-                disabled={fields.length === 0 || isCreatingTable}
-                onClick={createTable}
-              >
-                Create
-              </Button>
-            </Flex>
-          </Stack>
-        </DrawerFooter>
-      </DrawerContent>
-    </DrawerRoot>
-  );
-};
-
 type ContentProps = {
   containerProps: ContentContainerProps;
-  onNewTable: () => void;
   onRefresh: () => void;
 };
 
@@ -211,71 +102,60 @@ const Content = (props: ContentProps) => {
   } = useSchemaViewerResizer();
 
   return (
-    <Stack gap={0} height="100vh">
-      <Flex p={2} justifyContent={"space-between"}>
-        <HStack>
-          <Heading fontWeight={"bold"}>TailorDB Editor</Heading>
-          <Badge>
-            <Link href="/workspace">{workspace.name}</Link>
-          </Badge>
-        </HStack>
-      </Flex>
-      <HStack gap={0} borderTop={"1px solid #e2e2e2"} height="100%">
-        <Allotment
-          onChange={([pane1Width]) => setSchemaViewerPaneWidth(pane1Width)}
-        >
-          <Allotment.Pane preferredSize={"50%"}>
-            <Box width={schemaViewerPaneWidth} height={"calc(100vh - 48px)"}>
-              <SchemaViewer
-                types={tailorDBTypes}
-                onRefresh={props.onRefresh}
-                onNewTable={props.onNewTable}
-                onInitialized={() => setSchemaViewerInitialized(true)}
-                onTableClicked={(typeName) => {
-                  setCurrentType(
-                    getTailorDBTypeByName(tailorDBTypes, typeName)
-                  );
+    <Allotment
+      onChange={([pane1Width]) => setSchemaViewerPaneWidth(pane1Width)}
+    >
+      <Allotment.Pane preferredSize={"50%"}>
+        <Box width={schemaViewerPaneWidth} height={"calc(100vh - 48px)"}>
+          <SchemaViewer
+            workspace={workspace}
+            types={tailorDBTypes}
+            onRefresh={props.onRefresh}
+            onInitialized={() => setSchemaViewerInitialized(true)}
+            onTableClicked={(typeName) => {
+              setCurrentType(getTailorDBTypeByName(tailorDBTypes, typeName));
+            }}
+          />
+        </Box>
+      </Allotment.Pane>
+      <Allotment.Pane>
+        {isSchemaViewerInitialized && (
+          <>
+            <Flex p={2} justifyContent={"space-between"}>
+              <Box width="300px" resize="both">
+                <TypeSelector
+                  currentType={currentType}
+                  onChange={setCurrentType}
+                  types={tailorDBTypes}
+                />
+              </Box>
+              <Box>
+                <Button
+                  as={Link}
+                  // @ts-ignore
+                  href={`/workspace/${workspace.id}/tables/${currentType?.name}`}
+                  size="xs"
+                >
+                  Edit table
+                </Button>
+              </Box>
+            </Flex>
+            <Flex>
+              <TailorDBTable
+                data={currentType?.schema.fields || {}}
+                handlers={{
+                  onClickSourceType: (typeName) => {
+                    setCurrentType(
+                      getTailorDBTypeByName(tailorDBTypes, typeName)
+                    );
+                  },
                 }}
               />
-            </Box>
-          </Allotment.Pane>
-          <Allotment.Pane>
-            {isSchemaViewerInitialized ? (
-              <>
-                <Flex p={2} justifyContent={"space-between"}>
-                  <Box width="300px" resize="both">
-                    <TypeSelector
-                      currentType={currentType}
-                      onChange={setCurrentType}
-                      types={tailorDBTypes}
-                    />
-                  </Box>
-                  <Box>
-                    <Button size="xs">Add column</Button>
-                  </Box>
-                </Flex>
-                <Flex>
-                  <TailorDBTable
-                    data={currentType?.schema.fields || {}}
-                    handlers={{
-                      onClickSourceType: (typeName) => {
-                        setCurrentType(
-                          getTailorDBTypeByName(tailorDBTypes, typeName)
-                        );
-                      },
-                    }}
-                  />
-                </Flex>
-              </>
-            ) : (
-              <Flex p={3}>
-                <Text>Initializing...</Text>
-              </Flex>
-            )}
-          </Allotment.Pane>
-        </Allotment>
-      </HStack>
-    </Stack>
+            </Flex>
+          </>
+        )}
+      </Allotment.Pane>
+    </Allotment>
   );
 };
 

@@ -1,6 +1,12 @@
 "use client";
-import { fieldTypes, FormFields, TailorDBTypesResult } from "@/app/types";
 import {
+  fieldTypes,
+  FormFields,
+  TailorDBTypesResult,
+  WorkspaceResult,
+} from "@/app/types";
+import {
+  Text,
   Stack,
   Heading,
   HStack,
@@ -10,11 +16,21 @@ import {
   Button,
   NativeSelectRoot,
   NativeSelectField,
+  DrawerBackdrop,
+  DrawerBody,
+  DrawerCloseTrigger,
+  DrawerContent,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerRoot,
+  DrawerTitle,
+  DrawerTrigger,
 } from "@chakra-ui/react";
 import { Checkbox } from "@/components/ui/checkbox";
-import { useEffect } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useFieldArray, useForm, UseFormReturn } from "react-hook-form";
 import { RxCross1 } from "react-icons/rx";
+import { createTableAction } from "@/actions/table";
 
 export const emptyField = {
   name: "",
@@ -26,6 +42,82 @@ export const emptyField = {
   nested: false,
   array: false,
 } as const;
+
+export const NewTableDrawer = (props: {
+  drawerOpened: boolean;
+  setDrawerOpened: (opened: boolean) => void;
+  namespaceName: string;
+  workspace: WorkspaceResult["workspace"];
+  tailorDBTypes: TailorDBTypesResult["tailordbTypes"];
+}) => {
+  const { fields, register, handleSubmit, renderComponents } =
+    useNewTableForm();
+  const [isCreatingTable, startCreatingTable] = useTransition();
+  const [error, setError] = useState<Error | null>(null);
+  const createTable = handleSubmit((data) => {
+    startCreatingTable(async () => {
+      const result = await createTableAction(
+        props.workspace.id,
+        props.namespaceName,
+        data
+      );
+      if (!result.success) {
+        setError(result.result);
+        return;
+      }
+      props.setDrawerOpened(false);
+    });
+  });
+
+  return (
+    <DrawerRoot
+      size="xl"
+      open={props.drawerOpened}
+      onOpenChange={(e) => props.setDrawerOpened(e.open)}
+      placement="start"
+    >
+      <DrawerBackdrop />
+      <DrawerTrigger />
+      <DrawerContent>
+        <DrawerCloseTrigger />
+        <DrawerHeader borderColor={"gray.200"} borderBottomWidth={"1px"}>
+          <Stack>
+            <DrawerTitle>New Table</DrawerTitle>
+            <Input
+              placeholder="Table Name"
+              {...register("name", { required: true })}
+            />
+          </Stack>
+        </DrawerHeader>
+        <DrawerBody px={0}>
+          <Stack py={2} px={4}>
+            {renderComponents({
+              tailorDBTypes: props.tailorDBTypes,
+            })}
+          </Stack>
+        </DrawerBody>
+        <DrawerFooter borderColor={"gray.200"} borderTopWidth={"1px"}>
+          <Stack flexGrow={1}>
+            {error && (
+              <Flex>
+                <Text color="red.500">{error.message}</Text>
+              </Flex>
+            )}
+            <Flex flexGrow={1}>
+              <Button
+                width="100%"
+                disabled={fields.length === 0 || isCreatingTable}
+                onClick={createTable}
+              >
+                Create
+              </Button>
+            </Flex>
+          </Stack>
+        </DrawerFooter>
+      </DrawerContent>
+    </DrawerRoot>
+  );
+};
 
 export const useNewTableForm = () => {
   const form = useForm<FormFields>();

@@ -29,14 +29,15 @@ export type TailorDBSchemaField = {
 
 export type TailorDBSchemaFields = Record<string, TailorDBSchemaField>;
 
+export type TailorDBType = {
+  name: string;
+  schema: {
+    description: string;
+    fields: TailorDBSchemaFields;
+  };
+};
 export type TailorDBTypesResult = {
-  tailordbTypes: Array<{
-    name: string;
-    schema: {
-      description: string;
-      fields: TailorDBSchemaFields;
-    };
-  }>;
+  tailordbTypes: Array<TailorDBType>;
 };
 
 export const fieldTypes = {

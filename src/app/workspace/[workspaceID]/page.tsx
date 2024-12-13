@@ -4,11 +4,13 @@ import { getAuth, withErrorRedirection } from "@/app/auth";
 
 export const dynamic = "force-dynamic";
 
-type PageParams = Promise<{
-  workspaceID: string;
-}>;
+export type PageProps = {
+  params: Promise<{
+    workspaceID: string;
+  }>;
+};
 
-const Page = async (props: { params: PageParams }) => {
+const Page = async (props: PageProps) => {
   const { workspaceID } = await props.params;
   const { patToken } = await getAuth();
   const operatorAPI = new OperatorAPI(patToken);
@@ -18,31 +20,46 @@ const Page = async (props: { params: PageParams }) => {
       id: workspaceID,
     });
 
-    const tailordbs = await operatorAPI.getTailorDBServices({
-      workspaceID: workspaceID,
-    });
-    if (tailordbs.tailordbServices.length === 0) {
-      return <div>No TailorDB services found</div>;
-    }
-
-    const firstNamespace = tailordbs.tailordbServices[0].namespace.name;
-    const tailorDBTypes = await operatorAPI.getTailorDBTypes({
-      workspaceID: workspaceID,
-      namespaceName: firstNamespace,
-    });
-
-    if (tailorDBTypes.tailordbTypes.length === 0) {
-      return <div>No TailorDB types found</div>;
-    }
+    const { namespace, types: tables } = await getTailorDBTypes(
+      operatorAPI,
+      workspaceID
+    );
 
     return (
       <ContentContainer
-        namespaceName={firstNamespace}
+        namespaceName={namespace}
         workspace={ws.workspace}
-        tailorDBTypes={tailorDBTypes.tailordbTypes}
+        tailorDBTypes={tables}
       />
     );
   });
+};
+
+export const getTailorDBTypes = async (
+  operatorAPI: OperatorAPI,
+  workspaceID: string
+) => {
+  const tailordbs = await operatorAPI.getTailorDBServices({
+    workspaceID: workspaceID,
+  });
+  if (tailordbs.tailordbServices.length === 0) {
+    throw new Error("No TailorDB services found");
+  }
+
+  const firstNamespace = tailordbs.tailordbServices[0].namespace.name;
+  const tailorDBTypes = await operatorAPI.getTailorDBTypes({
+    workspaceID: workspaceID,
+    namespaceName: firstNamespace,
+  });
+
+  if (tailorDBTypes.tailordbTypes.length === 0) {
+    throw new Error("No TailorDB types found");
+  }
+
+  return {
+    namespace: firstNamespace,
+    types: tailorDBTypes.tailordbTypes,
+  };
 };
 
 export default Page;
