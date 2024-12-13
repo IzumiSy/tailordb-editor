@@ -1,8 +1,7 @@
 "use client";
 import { deleteTableAction } from "@/actions/table";
-import { TailorDBType } from "@/app/types";
-import { TailorDBTable } from "@/components/table";
-import { Stack, Flex, Heading, HStack, Button } from "@chakra-ui/react";
+import { fieldTypes, FormFields, TailorDBType } from "@/app/types";
+import { Stack, Flex, HStack, Button, Input } from "@chakra-ui/react";
 import {
   MenuRoot,
   MenuTrigger,
@@ -12,6 +11,8 @@ import {
 import Link from "next/link";
 import { useTransition } from "react";
 import { redirect } from "next/navigation";
+import { FormProvider, useForm } from "react-hook-form";
+import { EditableTableViewer } from "@/components/editable-table";
 
 type ContentProps = {
   workspaceID: string;
@@ -20,6 +21,29 @@ type ContentProps = {
 };
 
 export const Content = (props: ContentProps) => {
+  const form = useForm<FormFields>({
+    defaultValues: {
+      name: props.currentType.name,
+      fields: Object.keys(props.currentType.schema.fields).flatMap((name) => {
+        const field = props.currentType.schema.fields[name];
+        return [
+          {
+            name,
+            type: field.type as keyof typeof fieldTypes,
+            description: field.description,
+            foreignKey: field.foreignKey ? "on" : false,
+            foreignKeyType: field.foreignKeyType,
+            required: field.required ? "on" : false,
+            index: field.index ? "on" : false,
+            unique: false,
+            nested: false,
+            array: false,
+          } as const,
+        ];
+      }),
+    },
+  });
+  const { register, handleSubmit } = form;
   const [isDeletingTable, startDeletingTable] = useTransition();
   const deleteTable = () => {
     startDeletingTable(async () => {
@@ -34,8 +58,14 @@ export const Content = (props: ContentProps) => {
 
   return (
     <Stack width={"100%"} gap={0}>
-      <Flex p={2} justifyContent={"space-between"} width={"100%"}>
-        <Heading>{props.currentType.name}</Heading>
+      <Flex p={2} justifyContent={"space-between"} width={"100%"} gap={2}>
+        <Input
+          placeholder="Table name"
+          size="xs"
+          {...register("name", {
+            required: true,
+          })}
+        />
         <HStack>
           <Button size="xs">Save changes</Button>
           <MenuRoot>
@@ -66,12 +96,9 @@ export const Content = (props: ContentProps) => {
           </Button>
         </HStack>
       </Flex>
-      <TailorDBTable
-        data={props.currentType.schema.fields || {}}
-        handlers={{
-          onClickSourceType: (typeName) => void 0,
-        }}
-      />
+      <FormProvider {...form}>
+        <EditableTableViewer />
+      </FormProvider>
     </Stack>
   );
 };

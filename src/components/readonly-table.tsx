@@ -1,5 +1,5 @@
 import { TailorDBSchemaField, TailorDBSchemaFields } from "@/app/types";
-import { Table, Badge, Button } from "@chakra-ui/react";
+import { Table, Badge } from "@chakra-ui/react";
 import {
   createColumnHelper,
   flexRender,
@@ -81,17 +81,6 @@ const buildColumns = (props: {
     },
     enableResizing: false,
   }),
-  columnHelper.display({
-    id: "actions",
-    header: () => "Actions",
-    cell: () => {
-      return (
-        <Button size="xs" variant="outline" height={6}>
-          Edit
-        </Button>
-      );
-    },
-  }),
 ];
 
 type TailorDBTableProps = {
@@ -101,7 +90,7 @@ type TailorDBTableProps = {
   };
 };
 
-export const TailorDBTable = (props: TailorDBTableProps) => {
+export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
   const data = useMemo(
     () =>
       Object.keys(props.data).flatMap((fieldName) => {

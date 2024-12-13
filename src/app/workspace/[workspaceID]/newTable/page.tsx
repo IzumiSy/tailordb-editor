@@ -1,5 +1,6 @@
-import { Stack, Flex, HStack, Button, Input } from "@chakra-ui/react";
-import Link from "next/link";
+import { OperatorAPI } from "@/app/api";
+import { getAuth } from "@/app/auth";
+import { Content } from "./content";
 
 type PageProps = {
   params: Promise<{
@@ -9,26 +10,18 @@ type PageProps = {
 
 const Page = async (props: PageProps) => {
   const params = await props.params;
+  const { patToken } = await getAuth();
+  const operatorAPI = new OperatorAPI(patToken);
 
-  return (
-    <Stack width={"100%"} gap={0}>
-      <Flex p={2} justifyContent={"space-between"} width={"100%"} gap={2}>
-        <Input placeholder="Table name" size="xs" />
-        <HStack>
-          <Button size="xs">Save changes</Button>
-          <Button
-            as={Link}
-            // @ts-ignore
-            href={`/workspace/${params.workspaceID}`}
-            size="xs"
-            variant="ghost"
-          >
-            Close
-          </Button>
-        </HStack>
-      </Flex>
-    </Stack>
-  );
+  const tailordbs = await operatorAPI.getTailorDBServices({
+    workspaceID: params.workspaceID,
+  });
+  if (tailordbs.tailordbServices.length === 0) {
+    throw new Error("No TailorDB services found");
+  }
+
+  const namespace = tailordbs.tailordbServices[0].namespace.name;
+  return <Content workspaceID={params.workspaceID} namespaceName={namespace} />;
 };
 
 export default Page;

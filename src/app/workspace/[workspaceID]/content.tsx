@@ -1,6 +1,6 @@
 "use client";
 import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
-import { TailorDBTable } from "@/components/table";
+import { ReadonlyTableViewer } from "@/components/readonly-table";
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import {
@@ -141,7 +141,7 @@ const Content = (props: ContentProps) => {
               </Box>
             </Flex>
             <Flex>
-              <TailorDBTable
+              <ReadonlyTableViewer
                 data={currentType?.schema.fields || {}}
                 handlers={{
                   onClickSourceType: (typeName) => {

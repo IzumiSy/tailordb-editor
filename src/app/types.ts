@@ -22,6 +22,7 @@ export type TailorDBSchemaField = {
   type: string;
   description: string;
   required?: boolean;
+  index?: boolean;
   foreignKey?: boolean;
   foreignKeyType?: string;
   sourceId?: string;
@@ -67,7 +68,7 @@ export const fieldTypes = {
   },
 } as const;
 
-type TableField = {
+export type TableField = {
   name: string;
   description: string;
   type: keyof typeof fieldTypes;
@@ -76,7 +77,7 @@ type TableField = {
   unique: false | "on";
   nested: false | "on";
   array: false | "on";
-  foreignKey?: string;
+  foreignKey?: false | "on";
   foreignKeyType?: string;
   sourceID?: string;
   hasSource?: boolean;
