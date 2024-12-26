@@ -53,7 +53,6 @@ export const Content = (props: ContentProps) => {
           <WorkspaceSelector ws={ws} onChange={setCurrentWorkspace} />
           <Button
             onClick={() => {
-              console.log(currentWorkspace);
               if (currentWorkspace) {
                 router.push(`/workspace/${currentWorkspace}`);
               }

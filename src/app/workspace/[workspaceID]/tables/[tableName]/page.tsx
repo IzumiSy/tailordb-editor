@@ -27,8 +27,6 @@ const Page = async (props: PageProps) => {
       redirect(`/workspace/${params.workspaceID}`);
     }
 
-    console.log(currentType);
-
     return (
       <Content
         workspaceID={params.workspaceID}
