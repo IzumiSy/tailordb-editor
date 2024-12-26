@@ -1,5 +1,6 @@
 import { TailorDBSchemaField, TailorDBSchemaFields } from "@/app/types";
-import { Table, Badge } from "@chakra-ui/react";
+import { Table, Badge, HStack, Box } from "@chakra-ui/react";
+import { LuArrowDownUp, LuArrowDown, LuArrowUp } from "react-icons/lu";
 import {
   PopoverBody,
   PopoverContent,
@@ -13,9 +14,10 @@ import {
   flexRender,
   getCoreRowModel,
   getSortedRowModel,
+  Header,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { FcOk } from "react-icons/fc";
 
 const checkBoxColumn = (header: string) => {
@@ -152,6 +154,7 @@ type TailorDBTableProps = {
 };
 
 export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
+  const { sortState, Sorter } = useSorter();
   const data = useMemo(
     () =>
       Object.keys(props.data).flatMap((fieldName) => {
@@ -164,7 +167,6 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
       }),
     [props.data]
   );
-
   const columns = buildColumns({
     onClickSourceType: props.handlers.onClickSourceType,
   });
@@ -173,6 +175,9 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    state: {
+      sorting: sortState,
+    },
   });
 
   return (
@@ -186,12 +191,15 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
                   key={header.id}
                   backgroundColor={"bg.muted"}
                 >
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(
-                        header.column.columnDef.header,
-                        header.getContext()
-                      )}
+                  <HStack>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                    <Sorter header={header} />
+                  </HStack>
                 </Table.ColumnHeader>
               ))}
             </Table.Row>
@@ -211,4 +219,63 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
       </Table.Root>
     </Table.ScrollArea>
   );
+};
+
+const useSorter = () => {
+  const [internalSortState, setSortingState] = useState<
+    Record<string, "asc" | "desc" | null>
+  >({});
+
+  const sortState = useMemo(
+    () =>
+      Object.keys(internalSortState).flatMap((key) => {
+        const value = internalSortState[key];
+        if (!value) {
+          return [];
+        }
+
+        return {
+          id: key,
+          desc: value === "desc",
+        };
+      }),
+    [internalSortState]
+  );
+
+  const Sorter = memo(
+    (props: { header: Header<TailorDBSchemaField, unknown> }) => {
+      const stateValue = internalSortState[props.header.id];
+      const valueMap = {
+        asc: <LuArrowUp />,
+        desc: <LuArrowDown />,
+      } as const;
+
+      return (
+        <Box
+          css={{
+            cursor: "pointer",
+          }}
+          onClick={() => {
+            setSortingState((state) => {
+              return {
+                ...state,
+                [props.header.id]: state[props.header.id]
+                  ? state[props.header.id] === "desc"
+                    ? "asc"
+                    : null
+                  : "desc",
+              };
+            });
+          }}
+        >
+          {stateValue ? valueMap[stateValue] : <LuArrowDownUp />}
+        </Box>
+      );
+    }
+  );
+
+  return {
+    sortState,
+    Sorter,
+  };
 };
