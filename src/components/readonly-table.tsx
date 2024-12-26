@@ -1,5 +1,18 @@
-import { TailorDBSchemaField, TailorDBSchemaFields } from "@/app/types";
-import { Table, Badge, HStack, Box } from "@chakra-ui/react";
+import {
+  fieldTypes,
+  TailorDBSchemaField,
+  TailorDBSchemaFields,
+} from "@/app/types";
+import {
+  Table,
+  Badge,
+  HStack,
+  Box,
+  Stack,
+  Input,
+  Select,
+  NativeSelect,
+} from "@chakra-ui/react";
 import { LuArrowDownUp, LuArrowDown, LuArrowUp } from "react-icons/lu";
 import {
   PopoverBody,
@@ -10,24 +23,35 @@ import {
 import { DataListRoot, DataListItem } from "@/components/ui/data-list";
 import {
   CellContext,
+  ColumnFiltersState,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
+  getFilteredRowModel,
   getSortedRowModel,
   Header,
+  RowData,
   useReactTable,
 } from "@tanstack/react-table";
 import { memo, useMemo, useState } from "react";
 import { FcOk } from "react-icons/fc";
+
+declare module "@tanstack/react-table" {
+  interface ColumnMeta<TData extends RowData, TValue> {
+    filterVariant?: "fieldType" | "select" | "boolean";
+  }
+}
 
 const checkBoxColumn = (header: string) => {
   return {
     header: () => header,
     cell: (cell: CellContext<TailorDBSchemaField, unknown>) =>
       cell.getValue() && <FcOk />,
-
     enableResizing: false,
-  };
+    meta: {
+      filterVariant: "boolean",
+    },
+  } as const;
 };
 
 const colorsMap = {
@@ -116,6 +140,10 @@ const buildColumns = (props: {
   columnHelper.accessor("type", {
     header: () => "Type",
     cell: (cell) => <TypeRenderer {...props} cell={cell} />,
+    meta: {
+      filterVariant: "fieldType",
+    },
+    filterFn: "equalsString",
   }),
   columnHelper.accessor("description", {
     header: () => "Description",
@@ -154,6 +182,8 @@ type TailorDBTableProps = {
 };
 
 export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+
   const { sortState, Sorter } = useSorter();
   const data = useMemo(
     () =>
@@ -175,9 +205,12 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
     columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
     state: {
+      columnFilters,
       sorting: sortState,
     },
+    onColumnFiltersChange: setColumnFilters,
   });
 
   return (
@@ -191,15 +224,18 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
                   key={header.id}
                   backgroundColor={"bg.muted"}
                 >
-                  <HStack>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext()
-                        )}
-                    <Sorter header={header} />
-                  </HStack>
+                  <Stack>
+                    <HStack>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext()
+                          )}
+                      <Sorter header={header} />
+                    </HStack>
+                    <ColumnFilterInput data={props.data} header={header} />
+                  </Stack>
                 </Table.ColumnHeader>
               ))}
             </Table.Row>
@@ -219,6 +255,68 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
       </Table.Root>
     </Table.ScrollArea>
   );
+};
+
+const ColumnFilterInput = (props: {
+  data: TailorDBSchemaFields;
+  header: Header<TailorDBSchemaField, unknown>;
+}) => {
+  const { header } = props;
+  const filterVariant = header.column.columnDef.meta?.filterVariant;
+
+  switch (filterVariant) {
+    case "fieldType": {
+      return (
+        <NativeSelect.Root size="sm">
+          <NativeSelect.Field
+            backgroundColor="white"
+            onChange={(e) => {
+              header.column.setFilterValue(e.target.value);
+            }}
+          >
+            <option value="">-</option>
+            {Object.keys(fieldTypes).map((fieldType) => (
+              <option key={fieldType} value={fieldType}>
+                {fieldType}
+              </option>
+            ))}
+          </NativeSelect.Field>
+        </NativeSelect.Root>
+      );
+    }
+
+    case "boolean": {
+      return (
+        <NativeSelect.Root size="sm">
+          <NativeSelect.Field
+            backgroundColor="white"
+            onChange={(e) => {
+              header.column.setFilterValue(
+                e.target.value === "" ? undefined : e.target.value === "true"
+              );
+            }}
+          >
+            <option value="">-</option>
+            <option value="true">True</option>
+            <option value="false">False</option>
+          </NativeSelect.Field>
+        </NativeSelect.Root>
+      );
+    }
+
+    default: {
+      return (
+        <Input
+          onChange={(e) => {
+            header.column.setFilterValue(e.target.value);
+          }}
+          size="xs"
+          placeholder="Filter"
+          backgroundColor="white"
+        />
+      );
+    }
+  }
 };
 
 const useSorter = () => {
