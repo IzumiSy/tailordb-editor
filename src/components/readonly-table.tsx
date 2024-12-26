@@ -176,13 +176,16 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
   });
 
   return (
-    <Table.ScrollArea width="100%">
-      <Table.Root size="sm" variant="outline" stickyHeader>
+    <Table.ScrollArea width="100%" height="calc(100vh - 96px)">
+      <Table.Root size="sm" variant="outline" stickyHeader overflowY={"scroll"}>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
             <Table.Row key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Table.ColumnHeader key={header.id}>
+                <Table.ColumnHeader
+                  key={header.id}
+                  backgroundColor={"bg.muted"}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
