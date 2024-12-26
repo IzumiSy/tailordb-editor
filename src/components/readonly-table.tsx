@@ -1,7 +1,6 @@
 import { TailorDBSchemaField, TailorDBSchemaFields } from "@/app/types";
 import { Table, Badge } from "@chakra-ui/react";
 import {
-  PopoverArrow,
   PopoverBody,
   PopoverContent,
   PopoverRoot,
@@ -28,6 +27,17 @@ const checkBoxColumn = (header: string) => {
   };
 };
 
+const colorsMap = {
+  uuid: "black",
+  string: "green",
+  boolean: "orange",
+  float: "blue",
+  integer: "blue",
+  datetime: "purple",
+  date: "purple",
+  time: "purple",
+} as const;
+
 const TypeRenderer = (props: {
   cell: CellContext<TailorDBSchemaField, string>;
   onClickSourceType: (typeName: string) => void;
@@ -40,10 +50,12 @@ const TypeRenderer = (props: {
     case "uuid":
     case "string":
     case "boolean":
+    case "date":
     case "datetime":
     case "float":
-    case "integer":
-      return <Badge>{typeName}</Badge>;
+    case "integer": {
+      return <Badge colorPalette={colorsMap[typeName]}>{typeName}</Badge>;
+    }
     case "enum": {
       return (
         <PopoverRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
