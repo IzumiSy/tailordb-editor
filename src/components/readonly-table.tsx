@@ -1,6 +1,7 @@
 import { TailorDBSchemaField, TailorDBSchemaFields } from "@/app/types";
 import { Table, Badge } from "@chakra-ui/react";
 import {
+  CellContext,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
@@ -8,6 +9,16 @@ import {
 } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { FcOk } from "react-icons/fc";
+
+const checkBoxColumn = (header: string) => {
+  return {
+    header: () => header,
+    cell: (cell: CellContext<TailorDBSchemaField, unknown>) =>
+      cell.getValue() && <FcOk />,
+
+    enableResizing: false,
+  };
+};
 
 const columnHelper = createColumnHelper<TailorDBSchemaField>();
 const buildColumns = (props: {
@@ -73,14 +84,10 @@ const buildColumns = (props: {
       }
     },
   }),
-  columnHelper.accessor("required", {
-    header: () => "Required",
-    cell: (cell) => {
-      const required = cell.getValue();
-      return required && <FcOk />;
-    },
-    enableResizing: false,
-  }),
+  columnHelper.accessor("required", checkBoxColumn("Required")),
+  columnHelper.accessor("index", checkBoxColumn("Index")),
+  columnHelper.accessor("unique", checkBoxColumn("Unique")),
+  columnHelper.accessor("array", checkBoxColumn("Array")),
 ];
 
 type TailorDBTableProps = {

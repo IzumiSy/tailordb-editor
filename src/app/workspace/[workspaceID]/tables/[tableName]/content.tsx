@@ -34,9 +34,8 @@ export const Content = (props: ContentProps) => {
         foreignKeyType: field.foreignKeyType,
         required: field.required ? "on" : false,
         index: field.index ? "on" : false,
-        unique: false,
-        nested: false,
-        array: false,
+        unique: field.unique ? "on" : false,
+        array: field.array ? "on" : false,
       } as const,
     ];
   });

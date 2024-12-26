@@ -21,20 +21,20 @@ const Page = async (props: PageProps) => {
       operatorAPI,
       params.workspaceID
     );
-    const currentTypes = types.find((table) => table.name === params.tableName);
+    const currentType = types.find((table) => table.name === params.tableName);
 
-    if (!currentTypes) {
+    if (!currentType) {
       redirect(`/workspace/${params.workspaceID}`);
     }
 
+    console.log(currentType);
+
     return (
-      currentTypes && (
-        <Content
-          workspaceID={params.workspaceID}
-          namespaceName={namespace}
-          currentType={currentTypes}
-        />
-      )
+      <Content
+        workspaceID={params.workspaceID}
+        namespaceName={namespace}
+        currentType={currentType}
+      />
     );
   });
 };

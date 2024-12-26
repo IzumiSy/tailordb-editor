@@ -117,6 +117,40 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
         );
       },
     }),
+    columnHelper.accessor("unique", {
+      header: () => "Unique",
+      cell: ({ row }) => {
+        const field = register(`fields.${row.index}.unique`);
+        const defaultValue = get(formState.defaultValues, field.name);
+
+        return (
+          <Checkbox
+            size="lg"
+            variant="subtle"
+            colorScheme="primary"
+            defaultChecked={!!defaultValue}
+            {...field}
+          />
+        );
+      },
+    }),
+    columnHelper.accessor("array", {
+      header: () => "Array",
+      cell: ({ row }) => {
+        const field = register(`fields.${row.index}.array`);
+        const defaultValue = get(formState.defaultValues, field.name);
+
+        return (
+          <Checkbox
+            size="lg"
+            variant="subtle"
+            colorScheme="primary"
+            defaultChecked={!!defaultValue}
+            {...field}
+          />
+        );
+      },
+    }),
   ];
 };
 

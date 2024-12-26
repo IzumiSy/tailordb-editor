@@ -1,3 +1,5 @@
+import { unique } from "next/dist/build/utils";
+
 export type ApplicationResult = {
   name: string;
   url: string;
@@ -32,6 +34,8 @@ export type TailorDBSchemaField = {
   description: string;
   required?: boolean;
   index?: boolean;
+  unique?: boolean;
+  array?: boolean;
   foreignKey?: boolean;
   foreignKeyType?: string;
   sourceId?: string;
