@@ -101,10 +101,6 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
   const data = useMemo(
     () =>
       Object.keys(props.data).flatMap((fieldName) => {
-        if (["createdAt", "updatedAt"].includes(fieldName)) {
-          return [];
-        }
-
         return [
           {
             ...props.data[fieldName],
