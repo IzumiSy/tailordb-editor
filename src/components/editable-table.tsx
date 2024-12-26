@@ -41,28 +41,9 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
         </Button>
       ),
     }),
-    columnHelper.accessor("name", {
-      header: () => "Name",
-      cell: ({ row }) => (
-        <Input
-          size="xs"
-          variant="subtle"
-          {...register(`fields.${row.index}.name`)}
-        />
-      ),
-    }),
-    columnHelper.accessor("description", {
-      header: () => "Description",
-      cell: ({ row }) => (
-        <Input
-          size="xs"
-          variant="subtle"
-          {...register(`fields.${row.index}.description`)}
-        />
-      ),
-    }),
     columnHelper.accessor("type", {
       header: () => "Type",
+      size: 200,
       cell: ({ row }) => (
         <NativeSelect.Root size="sm" variant="subtle">
           <NativeSelect.Field
@@ -83,8 +64,20 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
         </NativeSelect.Root>
       ),
     }),
+    columnHelper.accessor("name", {
+      header: () => "Name",
+      size: 300,
+      cell: ({ row }) => (
+        <Input
+          size="xs"
+          variant="subtle"
+          {...register(`fields.${row.index}.name`)}
+        />
+      ),
+    }),
     columnHelper.accessor("required", {
       header: () => "Required",
+      size: 35,
       cell: ({ row }) => {
         const field = register(`fields.${row.index}.required`);
         const defaultValue = get(formState.defaultValues, field.name);
@@ -102,6 +95,7 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
     }),
     columnHelper.accessor("index", {
       header: () => "Index",
+      size: 35,
       cell: ({ row }) => {
         const field = register(`fields.${row.index}.index`);
         const defaultValue = get(formState.defaultValues, field.name);
@@ -119,6 +113,7 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
     }),
     columnHelper.accessor("unique", {
       header: () => "Unique",
+      size: 35,
       cell: ({ row }) => {
         const field = register(`fields.${row.index}.unique`);
         const defaultValue = get(formState.defaultValues, field.name);
@@ -136,6 +131,7 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
     }),
     columnHelper.accessor("array", {
       header: () => "Array",
+      size: 35,
       cell: ({ row }) => {
         const field = register(`fields.${row.index}.array`);
         const defaultValue = get(formState.defaultValues, field.name);
@@ -150,6 +146,17 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
           />
         );
       },
+    }),
+
+    columnHelper.accessor("description", {
+      header: () => "Description",
+      cell: ({ row }) => (
+        <Input
+          size="xs"
+          variant="subtle"
+          {...register(`fields.${row.index}.description`)}
+        />
+      ),
     }),
   ];
 };
@@ -181,7 +188,13 @@ export const EditableTableViewer = () => {
           {table.getHeaderGroups().map((headerGroup) => (
             <Table.Row key={headerGroup.id}>
               {headerGroup.headers.map((header) => (
-                <Table.ColumnHeader key={header.id}>
+                <Table.ColumnHeader
+                  key={header.id}
+                  style={{
+                    width:
+                      header.getSize() !== 150 ? header.getSize() : undefined,
+                  }}
+                >
                   {header.isPlaceholder
                     ? null
                     : flexRender(
