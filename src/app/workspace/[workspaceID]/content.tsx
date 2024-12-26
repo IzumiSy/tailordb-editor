@@ -1,5 +1,9 @@
 "use client";
-import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
+import {
+  ApplicationResult,
+  TailorDBTypesResult,
+  WorkspaceResult,
+} from "@/app/types";
 import { ReadonlyTableViewer } from "@/components/readonly-table";
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
@@ -73,8 +77,7 @@ export const ContentContainer = (props: ContentContainerProps) => {
     <ReactFlowProvider>
       <Content
         containerProps={{
-          namespaceName: props.namespaceName,
-          workspace: props.workspace,
+          ...props,
           tailorDBTypes: tables,
         }}
         onRefresh={refetchTables}

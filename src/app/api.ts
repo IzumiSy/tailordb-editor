@@ -1,5 +1,6 @@
 import ky, { HTTPError } from "ky";
 import {
+  ApplicationsResult,
   TailorDBServicesResult,
   TailorDBTypesResult,
   WorkspaceResult,
@@ -37,6 +38,19 @@ export class OperatorAPI {
         ],
       },
     });
+  }
+
+  async getApplications(props: { id: string }) {
+    return await this.request
+      .post<ApplicationsResult>(
+        "operator.v1.OperatorService/ListApplications",
+        {
+          json: {
+            workspace_id: props.id,
+          },
+        }
+      )
+      .json();
   }
 
   async getWorkspaces() {

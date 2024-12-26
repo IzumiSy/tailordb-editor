@@ -1,4 +1,12 @@
-import { Badge, Flex, Heading, HStack, Link, Stack } from "@chakra-ui/react";
+import {
+  Badge,
+  Button,
+  Flex,
+  Heading,
+  HStack,
+  Link,
+  Stack,
+} from "@chakra-ui/react";
 import { PageProps } from "./page";
 import { OperatorAPI } from "@/app/api";
 import { getAuth } from "@/app/auth";
@@ -12,6 +20,12 @@ const Layout = async (props: React.PropsWithChildren<PageProps>) => {
     id: workspaceID,
   });
 
+  const apps = await operatorAPI.getApplications({
+    id: workspaceID,
+  });
+
+  const playgroundLink = `${apps.applications[0].url}/playground`;
+
   return (
     <Stack gap={0} height="100vh">
       <Flex p={2} justifyContent={"space-between"}>
@@ -21,6 +35,16 @@ const Layout = async (props: React.PropsWithChildren<PageProps>) => {
             <Link href="/workspace">{wr.workspace.name}</Link>
           </Badge>
         </HStack>
+        <Button
+          as="a"
+          // @ts-ignore
+          href={playgroundLink}
+          target={"_blank"}
+          size="xs"
+          variant="subtle"
+        >
+          Open playground
+        </Button>
       </Flex>
       <Stack
         gap={0}

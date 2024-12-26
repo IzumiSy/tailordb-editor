@@ -1,3 +1,12 @@
+export type ApplicationResult = {
+  name: string;
+  url: string;
+};
+
+export type ApplicationsResult = {
+  applications: Array<ApplicationResult>;
+};
+
 export type WorkspacesResult = {
   workspaces: Array<{
     id: string;

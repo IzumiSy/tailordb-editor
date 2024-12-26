@@ -43,7 +43,7 @@ export const Content = (props: ContentProps) => {
       }),
     },
   });
-  const { register, handleSubmit } = form;
+  const { register } = form;
   const [isDeletingTable, startDeletingTable] = useTransition();
   const deleteTable = () => {
     startDeletingTable(async () => {
