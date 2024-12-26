@@ -91,7 +91,7 @@ export const Content = (props: ContentProps) => {
           <Button
             as={Link}
             // @ts-ignore
-            href={`/workspace/${props.workspaceID}`}
+            href={`/workspace/${props.workspaceID}?preview=${props.currentType.name}`}
             size="xs"
             variant="ghost"
           >

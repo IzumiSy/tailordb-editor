@@ -1,12 +1,8 @@
 "use client";
-import {
-  ApplicationResult,
-  TailorDBTypesResult,
-  WorkspaceResult,
-} from "@/app/types";
+import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
 import { ReadonlyTableViewer } from "@/components/readonly-table";
 import { Box, Button, Flex, Text } from "@chakra-ui/react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   NativeSelectField,
   NativeSelectRoot,
@@ -17,13 +13,14 @@ import "allotment/dist/style.css";
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { debounce } from "es-toolkit";
 import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
 
 const getTailorDBTypeByName = (
   types: TailorDBTypes,
-  name: string | undefined
+  name: string | undefined | null
 ) => types.find((type) => type.name === name) ?? null;
 
 const TypeSelector = (props: {
@@ -32,6 +29,7 @@ const TypeSelector = (props: {
   onChange: (type: TailorDBType) => void;
 }) => {
   const { types } = props;
+  const router = useRouter();
 
   return (
     <NativeSelectRoot size="sm" variant="subtle">
@@ -64,7 +62,6 @@ type ContentContainerProps = {
 
 export const ContentContainer = (props: ContentContainerProps) => {
   const [tables, setTables] = useState(props.tailorDBTypes);
-
   const refetchTables = () => {
     // TODO: "any" should be avoided
     fetch(`/workspace/${props.workspace.id}/tables`).then(async (tables) => {
@@ -93,7 +90,14 @@ type ContentProps = {
 
 const Content = (props: ContentProps) => {
   const { workspace, tailorDBTypes } = props.containerProps;
-  const initialTailorDBType = tailorDBTypes[0];
+  const searchParams = useSearchParams();
+  const initialTailorDBType = useMemo(
+    () =>
+      getTailorDBTypeByName(tailorDBTypes, searchParams.get("preview")) ??
+      tailorDBTypes[0],
+    []
+  );
+
   const [currentType, setCurrentType] = useState<TailorDBType | null>(
     getTailorDBTypeByName(tailorDBTypes, initialTailorDBType.name)
   );

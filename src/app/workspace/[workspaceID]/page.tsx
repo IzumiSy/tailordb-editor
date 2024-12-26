@@ -12,6 +12,7 @@ export type PageProps = {
 
 const Page = async (props: PageProps) => {
   const { workspaceID } = await props.params;
+
   const { patToken } = await getAuth();
   const operatorAPI = new OperatorAPI(patToken);
 
