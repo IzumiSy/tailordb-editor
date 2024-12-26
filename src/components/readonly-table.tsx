@@ -267,6 +267,10 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
                 <Table.ColumnHeader
                   key={header.id}
                   backgroundColor={"bg.muted"}
+                  style={{
+                    width:
+                      header.getSize() !== 150 ? header.getSize() : undefined,
+                  }}
                 >
                   <Stack>
                     <HStack>

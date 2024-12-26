@@ -41,6 +41,17 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
         </Button>
       ),
     }),
+    columnHelper.accessor("name", {
+      header: () => "Name",
+      size: 300,
+      cell: ({ row }) => (
+        <Input
+          size="xs"
+          variant="subtle"
+          {...register(`fields.${row.index}.name`)}
+        />
+      ),
+    }),
     columnHelper.accessor("type", {
       header: () => "Type",
       size: 200,
@@ -62,17 +73,6 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
             })}
           </NativeSelect.Field>
         </NativeSelect.Root>
-      ),
-    }),
-    columnHelper.accessor("name", {
-      header: () => "Name",
-      size: 300,
-      cell: ({ row }) => (
-        <Input
-          size="xs"
-          variant="subtle"
-          {...register(`fields.${row.index}.name`)}
-        />
       ),
     }),
     columnHelper.accessor("required", {
