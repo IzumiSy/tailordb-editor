@@ -21,26 +21,30 @@ type ContentProps = {
 };
 
 export const Content = (props: ContentProps) => {
+  const defaultFieldValues = Object.keys(
+    props.currentType.schema.fields
+  ).flatMap((name) => {
+    const field = props.currentType.schema.fields[name];
+    return [
+      {
+        name,
+        type: field.type as keyof typeof fieldTypes,
+        description: field.description,
+        foreignKey: field.foreignKey ? "on" : false,
+        foreignKeyType: field.foreignKeyType,
+        required: field.required ? "on" : false,
+        index: field.index ? "on" : false,
+        unique: false,
+        nested: false,
+        array: false,
+      } as const,
+    ];
+  });
+
   const form = useForm<FormFields>({
     defaultValues: {
       name: props.currentType.name,
-      fields: Object.keys(props.currentType.schema.fields).flatMap((name) => {
-        const field = props.currentType.schema.fields[name];
-        return [
-          {
-            name,
-            type: field.type as keyof typeof fieldTypes,
-            description: field.description,
-            foreignKey: field.foreignKey ? "on" : false,
-            foreignKeyType: field.foreignKeyType,
-            required: field.required ? "on" : false,
-            index: field.index ? "on" : false,
-            unique: false,
-            nested: false,
-            array: false,
-          } as const,
-        ];
-      }),
+      fields: defaultFieldValues,
     },
   });
   const { register } = form;

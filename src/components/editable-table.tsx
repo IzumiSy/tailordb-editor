@@ -7,7 +7,7 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useFieldArray, useFormContext } from "react-hook-form";
+import { get, useFieldArray, useFormContext } from "react-hook-form";
 
 export const emptyField = {
   name: "",
@@ -22,7 +22,7 @@ export const emptyField = {
 
 const columnHelper = createColumnHelper<TableField>();
 const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
-  const { register } = useFormContext<FormFields>();
+  const { register, formState } = useFormContext<FormFields>();
 
   return [
     columnHelper.display({
@@ -85,25 +85,37 @@ const useColumnBuilder = (props: { onDeleteRow: (index: number) => void }) => {
     }),
     columnHelper.accessor("required", {
       header: () => "Required",
-      cell: ({ row }) => (
-        <Checkbox
-          size="lg"
-          variant="subtle"
-          colorScheme="primary"
-          {...register(`fields.${row.index}.required`)}
-        />
-      ),
+      cell: ({ row }) => {
+        const field = register(`fields.${row.index}.required`);
+        const defaultValue = get(formState.defaultValues, field.name);
+
+        return (
+          <Checkbox
+            size="lg"
+            variant="subtle"
+            colorScheme="primary"
+            defaultChecked={!!defaultValue}
+            {...field}
+          />
+        );
+      },
     }),
     columnHelper.accessor("index", {
       header: () => "Index",
-      cell: ({ row }) => (
-        <Checkbox
-          size="lg"
-          variant="subtle"
-          colorScheme="primary"
-          {...register(`fields.${row.index}.index`)}
-        />
-      ),
+      cell: ({ row }) => {
+        const field = register(`fields.${row.index}.index`);
+        const defaultValue = get(formState.defaultValues, field.name);
+
+        return (
+          <Checkbox
+            size="lg"
+            variant="subtle"
+            colorScheme="primary"
+            defaultChecked={!!defaultValue}
+            {...field}
+          />
+        );
+      },
     }),
   ];
 };
