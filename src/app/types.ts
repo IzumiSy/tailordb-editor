@@ -65,8 +65,11 @@ export const fieldTypes = {
   uuid: {
     label: "UUID",
   },
-  number: {
-    label: "Number",
+  integer: {
+    label: "Integer",
+  },
+  float: {
+    label: "Float",
   },
   boolean: {
     label: "Boolean",
@@ -74,16 +77,22 @@ export const fieldTypes = {
   enum: {
     label: "Enum",
   },
+  nested: {
+    label: "Nested",
+  },
   date: {
     label: "Date",
   },
   time: {
     label: "Time",
   },
-  dateTime: {
+  datetime: {
     label: "DateTime",
   },
 } as const;
+
+export const isFieldType = (type: string) =>
+  Object.keys(fieldTypes).includes(type);
 
 export type TableField = {
   name: string;

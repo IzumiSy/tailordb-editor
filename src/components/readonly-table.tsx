@@ -1,5 +1,6 @@
 import {
   fieldTypes,
+  isFieldType,
   TailorDBSchemaField,
   TailorDBSchemaFields,
 } from "@/app/types";
@@ -38,7 +39,8 @@ import { FcOk } from "react-icons/fc";
 
 declare module "@tanstack/react-table" {
   interface ColumnMeta<TData extends RowData, TValue> {
-    filterVariant?: "fieldType" | "select" | "boolean";
+    filterVariant?: "select" | "boolean";
+    filterItems?: string[];
   }
 }
 
@@ -56,6 +58,8 @@ const checkBoxColumn = (header: string) => {
 
 const colorsMap = {
   uuid: "black",
+  enum: "yellow",
+  nested: "yellow",
   string: "green",
   boolean: "orange",
   float: "blue",
@@ -81,13 +85,32 @@ const TypeRenderer = (props: {
     case "datetime":
     case "float":
     case "integer": {
-      return <Badge colorPalette={colorsMap[typeName]}>{typeName}</Badge>;
+      return (
+        <Badge colorPalette={colorsMap[typeName]}>
+          {fieldTypes[typeName].label}
+        </Badge>
+      );
+    }
+    case "nested": {
+      return (
+        <Badge
+          css={{ cursor: "pointer" }}
+          variant="outline"
+          colorPalette={colorsMap[typeName]}
+        >
+          {fieldTypes[typeName].label}
+        </Badge>
+      );
     }
     case "enum": {
       return (
         <PopoverRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
           <PopoverTrigger asChild>
-            <Badge css={{ cursor: "pointer" }} variant="outline">
+            <Badge
+              css={{ cursor: "pointer" }}
+              variant="outline"
+              colorPalette={colorsMap[typeName]}
+            >
               Enum
             </Badge>
           </PopoverTrigger>
@@ -120,7 +143,7 @@ const TypeRenderer = (props: {
               props.onClickSourceType(typeName);
             }}
           >
-            {typeName}
+            Source: {typeName}
           </Badge>
         );
       }
@@ -132,6 +155,7 @@ const TypeRenderer = (props: {
 
 const columnHelper = createColumnHelper<TailorDBSchemaField>();
 const buildColumns = (props: {
+  data: TailorDBSchemaFields;
   onClickSourceType: (typeName: string) => void;
 }) => [
   columnHelper.accessor("name", {
@@ -141,9 +165,17 @@ const buildColumns = (props: {
     header: () => "Type",
     cell: (cell) => <TypeRenderer {...props} cell={cell} />,
     meta: {
-      filterVariant: "fieldType",
+      filterVariant: "select",
+      filterItems: Object.keys(fieldTypes),
     },
     filterFn: "equalsString",
+    sortingFn: (a, b, columnID) => {
+      const aTypeValue: string = a.getValue(columnID);
+      const bTypeValue: string = b.getValue(columnID);
+      const aName = isFieldType(aTypeValue) ? aTypeValue : "";
+      const bName = isFieldType(bTypeValue) ? bTypeValue : "";
+      return aName.localeCompare(bName ?? "") ?? 0;
+    },
   }),
   columnHelper.accessor("description", {
     header: () => "Description",
@@ -166,6 +198,17 @@ const buildColumns = (props: {
           </Badge>
         );
       }
+    },
+    filterFn: (cell, columnID, filterValue) => {
+      const typeName = cell.original.foreignKeyType;
+      return (
+        typeName?.toLowerCase()?.includes(filterValue.toLowerCase()) ?? false
+      );
+    },
+    sortingFn: (a, b) => {
+      const aTypeName = a.original.foreignKeyType;
+      const bTypeName = b.original.foreignKeyType;
+      return aTypeName?.localeCompare(bTypeName ?? "") ?? 0;
     },
   }),
   columnHelper.accessor("required", checkBoxColumn("Required")),
@@ -198,6 +241,7 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
     [props.data]
   );
   const columns = buildColumns({
+    data: props.data,
     onClickSourceType: props.handlers.onClickSourceType,
   });
   const table = useReactTable({
@@ -234,7 +278,7 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
                           )}
                       <Sorter header={header} />
                     </HStack>
-                    <ColumnFilterInput data={props.data} header={header} />
+                    <ColumnFilterInput header={header} />
                   </Stack>
                 </Table.ColumnHeader>
               ))}
@@ -258,14 +302,13 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
 };
 
 const ColumnFilterInput = (props: {
-  data: TailorDBSchemaFields;
   header: Header<TailorDBSchemaField, unknown>;
 }) => {
   const { header } = props;
-  const filterVariant = header.column.columnDef.meta?.filterVariant;
+  const meta = header.column.columnDef.meta;
 
-  switch (filterVariant) {
-    case "fieldType": {
+  switch (meta?.filterVariant) {
+    case "select": {
       return (
         <NativeSelect.Root size="sm">
           <NativeSelect.Field
@@ -275,9 +318,9 @@ const ColumnFilterInput = (props: {
             }}
           >
             <option value="">-</option>
-            {Object.keys(fieldTypes).map((fieldType) => (
-              <option key={fieldType} value={fieldType}>
-                {fieldType}
+            {meta.filterItems?.map((item) => (
+              <option key={item} value={item}>
+                {item}
               </option>
             ))}
           </NativeSelect.Field>

@@ -1,8 +1,9 @@
 "use client";
 import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
 import { ReadonlyTableViewer } from "@/components/readonly-table";
-import { Box, Button, Flex, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, IconButton, Text } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
+import { GoScreenFull } from "react-icons/go";
 import {
   NativeSelectField,
   NativeSelectRoot,
@@ -97,7 +98,6 @@ const Content = (props: ContentProps) => {
       tailorDBTypes[0],
     []
   );
-
   const [currentType, setCurrentType] = useState<TailorDBType | null>(
     getTailorDBTypeByName(tailorDBTypes, initialTailorDBType.name)
   );
@@ -107,12 +107,13 @@ const Content = (props: ContentProps) => {
     isSchemaViewerInitialized,
     setSchemaViewerInitialized,
   } = useSchemaViewerResizer();
+  const [isFullScreen, setFullScreen] = useState(false);
 
   return (
     <Allotment
       onChange={([pane1Width]) => setSchemaViewerPaneWidth(pane1Width)}
     >
-      <Allotment.Pane preferredSize={"50%"}>
+      <Allotment.Pane preferredSize={"50%"} visible={!isFullScreen}>
         <Box width={schemaViewerPaneWidth} height={"calc(100vh - 48px)"}>
           <SchemaViewer
             workspace={workspace}
@@ -129,13 +130,22 @@ const Content = (props: ContentProps) => {
         {isSchemaViewerInitialized && (
           <>
             <Flex p={2} justifyContent={"space-between"}>
-              <Box width="300px" resize="both">
-                <TypeSelector
-                  currentType={currentType}
-                  onChange={setCurrentType}
-                  types={tailorDBTypes}
-                />
-              </Box>
+              <HStack>
+                <IconButton
+                  size="xs"
+                  variant="ghost"
+                  onClick={() => setFullScreen(!isFullScreen)}
+                >
+                  <GoScreenFull />
+                </IconButton>
+                <Box width="300px" resize="both">
+                  <TypeSelector
+                    currentType={currentType}
+                    onChange={setCurrentType}
+                    types={tailorDBTypes}
+                  />
+                </Box>
+              </HStack>
               <Box>
                 <Button
                   as={Link}
