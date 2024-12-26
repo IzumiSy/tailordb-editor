@@ -1,13 +1,21 @@
 import { TailorDBSchemaField, TailorDBSchemaFields } from "@/app/types";
 import { Table, Badge } from "@chakra-ui/react";
 import {
+  PopoverArrow,
+  PopoverBody,
+  PopoverContent,
+  PopoverRoot,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { DataListRoot, DataListItem } from "@/components/ui/data-list";
+import {
   CellContext,
   createColumnHelper,
   flexRender,
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { FcOk } from "react-icons/fc";
 
 const checkBoxColumn = (header: string) => {
@@ -20,6 +28,69 @@ const checkBoxColumn = (header: string) => {
   };
 };
 
+const TypeRenderer = (props: {
+  cell: CellContext<TailorDBSchemaField, string>;
+  onClickSourceType: (typeName: string) => void;
+}) => {
+  const { cell } = props;
+  const typeName = cell.getValue();
+  const [open, setOpen] = useState(false);
+
+  switch (typeName) {
+    case "uuid":
+    case "string":
+    case "boolean":
+    case "datetime":
+    case "float":
+    case "integer":
+      return <Badge>{typeName}</Badge>;
+    case "enum": {
+      return (
+        <PopoverRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
+          <PopoverTrigger asChild>
+            <Badge css={{ cursor: "pointer" }} variant="outline">
+              Enum
+            </Badge>
+          </PopoverTrigger>
+          <PopoverContent>
+            <PopoverBody>
+              <DataListRoot>
+                {cell.row.original.allowedValues?.map(
+                  ({ value, description }, index) => (
+                    <DataListItem
+                      key={index}
+                      label={<Badge>{value}</Badge>}
+                      value={description}
+                    />
+                  )
+                )}
+              </DataListRoot>
+            </PopoverBody>
+          </PopoverContent>
+        </PopoverRoot>
+      );
+    }
+    default: {
+      const sourceID = cell.row.original.sourceId;
+      if (sourceID) {
+        return (
+          <Badge
+            css={{ cursor: "pointer" }}
+            variant="outline"
+            onClick={() => {
+              props.onClickSourceType(typeName);
+            }}
+          >
+            {typeName}
+          </Badge>
+        );
+      }
+
+      return typeName;
+    }
+  }
+};
+
 const columnHelper = createColumnHelper<TailorDBSchemaField>();
 const buildColumns = (props: {
   onClickSourceType: (typeName: string) => void;
@@ -27,42 +98,12 @@ const buildColumns = (props: {
   columnHelper.accessor("name", {
     header: () => "Name",
   }),
-  columnHelper.accessor("description", {
-    header: () => "Description",
-  }),
   columnHelper.accessor("type", {
     header: () => "Type",
-    cell: (cell) => {
-      const typeName = cell.getValue();
-
-      switch (typeName) {
-        case "uuid":
-        case "string":
-        case "boolean":
-        case "datetime":
-        case "float":
-        case "integer":
-          return <Badge>{typeName}</Badge>;
-        default: {
-          const sourceID = cell.row.original.sourceId;
-          if (sourceID) {
-            return (
-              <Badge
-                css={{ cursor: "pointer" }}
-                variant="outline"
-                onClick={() => {
-                  props.onClickSourceType(typeName);
-                }}
-              >
-                {typeName}
-              </Badge>
-            );
-          }
-
-          return typeName;
-        }
-      }
-    },
+    cell: (cell) => <TypeRenderer {...props} cell={cell} />,
+  }),
+  columnHelper.accessor("description", {
+    header: () => "Description",
   }),
   columnHelper.accessor("foreignKey", {
     header: () => "Foreign Key",

@@ -39,6 +39,10 @@ export type TailorDBSchemaField = {
   foreignKey?: boolean;
   foreignKeyType?: string;
   sourceId?: string;
+  allowedValues?: Array<{
+    value: string;
+    description: string;
+  }>;
 };
 
 export type TailorDBSchemaFields = Record<string, TailorDBSchemaField>;
