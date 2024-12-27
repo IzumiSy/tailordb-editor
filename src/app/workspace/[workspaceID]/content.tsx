@@ -5,17 +5,13 @@ import { Box, Button, Flex, HStack, IconButton } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { GoScreenFull } from "react-icons/go";
 import ReactSelect from "react-select";
-import {
-  NativeSelectField,
-  NativeSelectRoot,
-} from "@/components/ui/native-select";
 import { SchemaViewerContainer } from "./schema-viewer";
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
 import { debounce } from "es-toolkit";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 
 type TailorDBTypes = TailorDBTypesResult["tailordbTypes"];
 type TailorDBType = TailorDBTypes[number];
