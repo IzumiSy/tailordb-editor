@@ -258,7 +258,7 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
   });
 
   return (
-    <Table.ScrollArea width="100%" height="calc(100vh - 96px)">
+    <Table.ScrollArea width="100%" height="calc(100vh - 105px)">
       <Table.Root size="sm" variant="outline" stickyHeader overflowY={"scroll"}>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (

@@ -35,9 +35,7 @@ const TypeSelector = (props: {
   return (
     <ReactSelect
       options={options}
-      defaultValue={options.find(
-        ({ value }) => value === props.currentType?.name
-      )}
+      value={options.find(({ value }) => value === props.currentType?.name)}
       onChange={(e) => {
         const selectedType = getTailorDBTypeByName(types, e?.value);
         if (!selectedType) {
