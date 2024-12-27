@@ -3,8 +3,7 @@ import {
   TailorDBTypesResult,
   WorkspaceResult,
 } from "@/app/types";
-import { DataListRoot } from "@/components/ui/data-list";
-import { Button, Flex, Heading, HStack, Stack, Text } from "@chakra-ui/react";
+import { Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
 import Dagre from "@dagrejs/dagre";
 import {
   Background,
@@ -16,12 +15,15 @@ import {
   Panel,
   Position,
   ReactFlow,
+  ReactFlowProvider,
   useEdgesState,
   useNodesState,
+  useReactFlow,
+  Node,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
 import Link from "next/link";
-import { memo, useEffect } from "react";
+import { memo, useEffect, useRef } from "react";
 
 const buildNodes = (props: { types: TailorDBTypesResult["tailordbTypes"] }) => {
   const nodes = props.types.map((type) => {
@@ -121,7 +123,6 @@ const TableNode = memo(
             whiteSpace="nowrap"
             overflow="hidden"
             textOverflow="ellipsis"
-            fontWeight="normal"
             fontSize="md"
             textAlign={"center"}
             py={1}
@@ -165,12 +166,14 @@ const TableNode = memo(
 type SchemaViewerProps = {
   workspace: WorkspaceResult["workspace"];
   types: TailorDBTypesResult["tailordbTypes"];
+  currentType: TailorDBType | null;
   onRefresh: () => void;
   onTableClicked: (id: string) => void;
   onInitialized?: () => void;
 };
 
 export const SchemaViewer = (props: SchemaViewerProps) => {
+  const reactFlow = useReactFlow();
   const { nodes: initialNodes, edges: initialEdges } = buildNodes(props);
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
@@ -184,12 +187,45 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
         return "#ff0072";
     }
   };
+  const clickedNode = useRef<Node | null>(null);
 
   useEffect(() => {
     const { nodes: initialNodes, edges: initialEdges } = buildNodes(props);
     setNodes(initialNodes);
     setEdges(initialEdges);
   }, [props.types]);
+
+  useEffect(() => {
+    const node = nodes.find((n) => n.id === props.currentType?.name);
+    if (!node) {
+      return;
+    }
+
+    setNodes((nodes) => {
+      return nodes.map((n) => {
+        return {
+          ...n,
+          style: {
+            border: n.id === node.id ? "2px solid #ff0072" : "none",
+          },
+        };
+      });
+    });
+
+    // if the node is not clicked, then move the viewport to the node
+    // this is to prevent viewport from moving around when the user is clicking nodes
+    if (clickedNode.current?.id !== node.id) {
+      reactFlow.setViewport(
+        {
+          x: -node.position.x - node.width / 2 + window.innerHeight / 2,
+          y: -node.position.y - node.height / 2 + window.innerHeight / 2,
+          zoom: 1,
+        },
+        { duration: 500 }
+      );
+      clickedNode.current = null;
+    }
+  }, [props.currentType]);
 
   return (
     <ReactFlow
@@ -202,18 +238,8 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={(e, node) => {
+        clickedNode.current = node;
         props.onTableClicked(node.id);
-
-        setNodes((nodes) => {
-          return nodes.map((n) => {
-            return {
-              ...n,
-              style: {
-                border: n.id === node.id ? "2px solid #ff0072" : "none",
-              },
-            };
-          });
-        });
       }}
       fitView
     >
@@ -241,3 +267,9 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
     </ReactFlow>
   );
 };
+
+export const SchemaViewerContainer = (props: SchemaViewerProps) => (
+  <ReactFlowProvider>
+    <SchemaViewer {...props} />
+  </ReactFlowProvider>
+);

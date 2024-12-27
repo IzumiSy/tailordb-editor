@@ -1,14 +1,14 @@
 "use client";
 import { TailorDBTypesResult, WorkspaceResult } from "@/app/types";
 import { ReadonlyTableViewer } from "@/components/readonly-table";
-import { Box, Button, Flex, HStack, IconButton, Text } from "@chakra-ui/react";
+import { Box, Button, Flex, HStack, IconButton } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { GoScreenFull } from "react-icons/go";
 import {
   NativeSelectField,
   NativeSelectRoot,
 } from "@/components/ui/native-select";
-import { SchemaViewer } from "./schema-viewer";
+import { SchemaViewerContainer } from "./schema-viewer";
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
@@ -115,9 +115,10 @@ const Content = (props: ContentProps) => {
     >
       <Allotment.Pane preferredSize={"50%"} visible={!isFullScreen}>
         <Box width={schemaViewerPaneWidth} height={"calc(100vh - 48px)"}>
-          <SchemaViewer
+          <SchemaViewerContainer
             workspace={workspace}
             types={tailorDBTypes}
+            currentType={currentType}
             onRefresh={props.onRefresh}
             onInitialized={() => setSchemaViewerInitialized(true)}
             onTableClicked={(typeName) => {
