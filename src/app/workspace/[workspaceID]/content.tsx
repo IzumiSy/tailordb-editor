@@ -5,7 +5,7 @@ import { Box, Button, Flex, HStack, IconButton } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { GoScreenFull } from "react-icons/go";
 import ReactSelect from "react-select";
-import { SchemaViewerContainer } from "./schema-viewer";
+import { SchemaViewer } from "./schema-viewer";
 import { Allotment } from "allotment";
 import "allotment/dist/style.css";
 import { ReactFlowProvider, useReactFlow } from "@xyflow/react";
@@ -109,7 +109,7 @@ const Content = (props: ContentProps) => {
     >
       <Allotment.Pane preferredSize={"50%"} visible={!isFullScreen}>
         <Box width={schemaViewerPaneWidth} height={"calc(100vh - 48px)"}>
-          <SchemaViewerContainer
+          <SchemaViewer
             workspace={workspace}
             types={tailorDBTypes}
             currentType={currentType}

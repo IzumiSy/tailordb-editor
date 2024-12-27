@@ -214,16 +214,14 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
       return;
     }
 
-    setNodes((nodes) => {
-      return nodes.map((n) => {
-        return {
-          ...n,
-          style: {
-            border: n.id === node.id ? "2px solid #ff0072" : "none",
-          },
-        };
-      });
-    });
+    setNodes((nodes) =>
+      nodes.map((n) => ({
+        ...n,
+        style: {
+          border: n.id === node.id ? "2px solid #ff0072" : "none",
+        },
+      }))
+    );
 
     // if the node is not clicked, then move the viewport to the node
     // this is to prevent viewport from moving around when the user is clicking nodes
@@ -280,9 +278,3 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
     </ReactFlow>
   );
 };
-
-export const SchemaViewerContainer = (props: SchemaViewerProps) => (
-  <ReactFlowProvider>
-    <SchemaViewer {...props} />
-  </ReactFlowProvider>
-);
