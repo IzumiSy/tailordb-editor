@@ -4,6 +4,7 @@ import { ReadonlyTableViewer } from "@/components/readonly-table";
 import { Box, Button, Flex, HStack, IconButton } from "@chakra-ui/react";
 import { useEffect, useMemo, useState } from "react";
 import { GoScreenFull } from "react-icons/go";
+import ReactSelect from "react-select";
 import {
   NativeSelectField,
   NativeSelectRoot,
@@ -30,28 +31,27 @@ const TypeSelector = (props: {
   onChange: (type: TailorDBType) => void;
 }) => {
   const { types } = props;
-  const router = useRouter();
+  const options = types.map((type) => ({
+    value: type.name,
+    label: type.name,
+  }));
 
   return (
-    <NativeSelectRoot size="sm" variant="subtle">
-      <NativeSelectField
-        paddingX={2}
-        value={props.currentType?.name}
-        onChange={(e) => {
-          const selectedType = getTailorDBTypeByName(types, e.target.value);
-          if (!selectedType) {
-            return;
-          }
-          props.onChange(selectedType);
-        }}
-      >
-        {types.map((type) => (
-          <option key={type.name} value={type.name}>
-            {type.name}
-          </option>
-        ))}
-      </NativeSelectField>
-    </NativeSelectRoot>
+    <ReactSelect
+      options={options}
+      defaultValue={options.find(
+        ({ value }) => value === props.currentType?.name
+      )}
+      onChange={(e) => {
+        const selectedType = getTailorDBTypeByName(types, e?.value);
+        if (!selectedType) {
+          return;
+        }
+        props.onChange(selectedType);
+      }}
+      styles={{ menuPortal: (base) => ({ ...base, zIndex: 100 }) }}
+      isSearchable
+    />
   );
 };
 

@@ -262,7 +262,7 @@ export const ReadonlyTableViewer = (props: TailorDBTableProps) => {
       <Table.Root size="sm" variant="outline" stickyHeader overflowY={"scroll"}>
         <Table.Header>
           {table.getHeaderGroups().map((headerGroup) => (
-            <Table.Row key={headerGroup.id}>
+            <Table.Row key={headerGroup.id} zIndex={0}>
               {headerGroup.headers.map((header) => (
                 <Table.ColumnHeader
                   key={header.id}
