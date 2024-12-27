@@ -187,7 +187,7 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
         return "#ff0072";
     }
   };
-  const clickedNode = useRef<Node | null>(null);
+  const manuallySelectedNode = useRef<Node | null>(null);
 
   useEffect(() => {
     const { nodes: initialNodes, edges: initialEdges } = buildNodes(props);
@@ -214,7 +214,7 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
 
     // if the node is not clicked, then move the viewport to the node
     // this is to prevent viewport from moving around when the user is clicking nodes
-    if (clickedNode.current?.id !== node.id) {
+    if (manuallySelectedNode.current?.id !== node.id) {
       reactFlow.setViewport(
         {
           x: -node.position.x - node.width / 2 + window.innerHeight / 2,
@@ -223,7 +223,7 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
         },
         { duration: 500 }
       );
-      clickedNode.current = null;
+      manuallySelectedNode.current = null;
     }
   }, [props.currentType]);
 
@@ -238,7 +238,7 @@ export const SchemaViewer = (props: SchemaViewerProps) => {
       onNodesChange={onNodesChange}
       onEdgesChange={onEdgesChange}
       onNodeClick={(e, node) => {
-        clickedNode.current = node;
+        manuallySelectedNode.current = node;
         props.onTableClicked(node.id);
       }}
       fitView
