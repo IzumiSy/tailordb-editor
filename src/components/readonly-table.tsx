@@ -56,7 +56,7 @@ const checkBoxColumn = (header: string) => {
   } as const;
 };
 
-const colorsMap = {
+export const colorsMap = {
   uuid: "black",
   enum: "yellow",
   nested: "yellow",

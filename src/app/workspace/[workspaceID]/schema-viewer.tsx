@@ -3,7 +3,8 @@ import {
   TailorDBTypesResult,
   WorkspaceResult,
 } from "@/app/types";
-import { Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
+import { colorsMap } from "@/components/readonly-table";
+import { Badge, Button, Flex, Heading, Stack, Text } from "@chakra-ui/react";
 import Dagre from "@dagrejs/dagre";
 import {
   Background,
@@ -132,11 +133,23 @@ const TableNode = memo(
           </Heading>
           <Stack py={1} px={2} gap={1}>
             {topFourFields.map((field, index) => {
-              const type = data.type.schema.fields[field].type;
+              const type = data.type.schema.fields[field]
+                .type as keyof typeof colorsMap;
+              const attributes = Object.keys(colorsMap).includes(type)
+                ? {
+                    color: colorsMap[type],
+                  }
+                : { color: "gray", variant: "outline" as const };
+
               return (
                 <Flex key={index} justifyContent={"space-between"}>
                   <Text>{field}</Text>
-                  <Text>{type}</Text>
+                  <Badge
+                    colorPalette={attributes.color}
+                    variant={attributes.variant}
+                  >
+                    {type}
+                  </Badge>
                 </Flex>
               );
             })}
